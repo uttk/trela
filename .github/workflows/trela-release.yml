@@ -1,0 +1,24 @@
+name: Trela Release
+
+on:
+  push:
+    tags: "v*"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+        registry-url: 'https://registry.npmjs.org'
+    - run: yarn --frozen-lockfile
+    - run: yarn test
+    - run: yarn build
+    - run: yarn publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
