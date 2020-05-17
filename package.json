@@ -1,0 +1,59 @@
+{
+  "name": "trela",
+  "version": "0.0.1",
+  "description": "Store management framework that simplifies asynchronous processing🍭",
+  "main": "lib/index.js",
+  "types": "types/index.d.ts",
+  "author": "uttk <uttk8128@gmail> (https://github.com/uttk)",
+  "keywords": [
+    "trela",
+    "hooks",
+    "react",
+    "react hooks",
+    "asynchronous",
+    "concurrent mode",
+    "store management"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uttk/trela/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uttk/trela.git"
+  },
+  "files": [
+    "lib",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "types"
+  ],
+  "scripts": {
+    "test": "jest --color --no-cache",
+    "build": "rollup --config"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^10.0.2",
+    "@types/jest": "^25.2.1",
+    "@types/react": "^16.9.32",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-jest": "^23.8.2",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.19.0",
+    "jest": "^25.2.7",
+    "prettier": "^2.0.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "rollup": "^2.3.3",
+    "rollup-plugin-typescript2": "^0.27.0",
+    "ts-jest": "^25.3.1",
+    "typescript": "^3.8.3"
+  },
+  "peerDependencies": {
+    "react": "^16.13.1"
+  }
+}
