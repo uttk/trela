@@ -91,7 +91,7 @@ describe("Simple Use Case", () => {
 
     fireEvent.click(cancelButton);
 
-    await sleep(3000);
+    await sleep(1000);
 
     expect(getByText("Loading")).toBeDefined();
     expect(queryAllByText(/^Example/)).toHaveLength(0);
