@@ -2,13 +2,22 @@ import * as React from "react";
 import {
   render,
   waitFor,
+  fireEvent,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import { useTrela } from "../../src/hooks/useTrela";
 import { createContextValue } from "../../src/utils/createContextValue";
 import { TrelaProvider } from "../../src/components/TrelaProvider";
 import { TrelaContextValue } from "../../src/types";
-import { apis, reducer, initState, StateType, ApisType } from "./utils";
+import {
+  apis,
+  sleep,
+  reducer,
+  initState,
+  StateType,
+  ApisType,
+  responseMockData,
+} from "./utils";
 
 describe("Component Dependency Use Case", () => {
   let contextValue: TrelaContextValue<any, any>;
@@ -59,6 +68,9 @@ describe("Component Dependency Use Case", () => {
         <p>User Count : {users.length}</p>
 
         <UserList />
+
+        <button onClick={() => ref.cancel()}>Cancel</button>
+        <button onClick={() => ref.forceStart()}>Refetch</button>
       </div>
     );
   };
@@ -88,5 +100,40 @@ describe("Component Dependency Use Case", () => {
 
     await waitFor(() => expect(mountCounter).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(childMountCounter).toHaveBeenCalledTimes(2));
+  });
+
+  test("Can cancel the fetchUsers action", async () => {
+    const { getByText, queryAllByText } = render(<Root />);
+    const cancelButton = getByText("Cancel");
+
+    fireEvent.click(cancelButton);
+
+    await sleep(1000);
+
+    expect(getByText("App Loading")).toBeDefined();
+    expect(getByText("Child Loading")).toBeDefined();
+    expect(queryAllByText(/^Example/)).toHaveLength(0);
+  });
+
+  test("Can refetch users", async () => {
+    const { getByText, getAllByText, queryByText } = render(<Root />);
+
+    await waitForElementToBeRemoved(() => queryByText("App Loading"));
+    expect(queryByText("Child Loading")).toBeNull();
+
+    const refetchButotn = getByText("Refetch");
+
+    fireEvent.click(refetchButotn);
+
+    await waitForElementToBeRemoved(() => queryByText("App Loading"));
+    expect(queryByText("Child Loading")).toBeNull();
+
+    await waitFor(() =>
+      expect(getAllByText(/^Example/)).toHaveLength(
+        responseMockData.users.length
+      )
+    );
+
+    expect(mountCounter).toBeCalledTimes(4);
   });
 });
