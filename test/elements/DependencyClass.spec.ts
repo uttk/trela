@@ -74,11 +74,13 @@ describe("DependencyClass Tests", () => {
 
     test("Execute addEventListener of passed streamer", () => {
       const streamer = streamerMg.createStreamer("test", []);
+      const addEventListener = jest.fn();
 
-      streamer["addEventListener"] = jest.fn();
+      streamer["addEventListener"] = addEventListener;
       dependency.addStreamer(streamer);
 
-      expect(streamer["addEventListener"]).toBeCalled();
+      expect(addEventListener).toBeCalledWith("finished", expect.any(Function));
+      expect(addEventListener).toBeCalledWith("started", expect.any(Function));
     });
   });
 
