@@ -3,6 +3,7 @@ import {
   render,
   waitFor,
   waitForElementToBeRemoved,
+  fireEvent,
 } from "@testing-library/react";
 import { useTrela } from "../../src/hooks/useTrela";
 import { createContextValue } from "../../src/utils/createContextValue";
@@ -10,6 +11,7 @@ import { TrelaProvider } from "../../src/components/TrelaProvider";
 import { TrelaContextValue } from "../../src/types";
 import {
   apis,
+  sleep,
   reducer,
   ApisType,
   initState,
@@ -49,6 +51,9 @@ describe("Parallel Use Case", () => {
             <li key={`user-list-${user.id}`}>{user.name}</li>
           ))}
         </ul>
+
+        <button onClick={() => ref.cancel()}>Cancel</button>
+        <button onClick={() => ref.forceStart()}>Refetch</button>
       </div>
     );
   };
@@ -83,5 +88,36 @@ describe("Parallel Use Case", () => {
         responseMockData.users.length
       );
     });
+  });
+
+  test("Can cancel the fetchUsers action", async () => {
+    const { getByText, queryAllByText } = render(<Root />);
+    const cancelButton = getByText("Cancel");
+
+    fireEvent.click(cancelButton);
+
+    await sleep(1000);
+
+    expect(getByText("Loading")).toBeDefined();
+    expect(queryAllByText(/^Example/)).toHaveLength(0);
+  });
+
+  test("Can refetch users", async () => {
+    const { getByText, getAllByText, queryByText } = render(<Root />);
+
+    await waitForElementToBeRemoved(() => queryByText("Loading"));
+
+    const refetchButotn = getByText("Refetch");
+
+    fireEvent.click(refetchButotn);
+
+    await waitForElementToBeRemoved(() => queryByText("Loading"));
+    await waitFor(() =>
+      expect(getAllByText(/^Example/)).toHaveLength(
+        responseMockData.users.length
+      )
+    );
+
+    expect(mountCounter).toBeCalledTimes(4);
   });
 });
