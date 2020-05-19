@@ -4,7 +4,7 @@ export class DependencyClass implements Dependency {
   private updateComponentView: () => void;
   private streamerList: Map<
     string,
-    { streamer: Streamer<any>; removeListener: () => void }
+    { streamer: Streamer<any>; removeListeners: Array<() => void> }
   > = new Map();
 
   public id: number = NaN;
@@ -43,20 +43,28 @@ export class DependencyClass implements Dependency {
   addStreamer(streamer: Streamer<any>) {
     if (this.streamerList.has(streamer.id)) return;
 
-    const removeListener = streamer.addEventListener("finished", () => {
-      if (this.canUpdate(streamer)) {
-        this.tryUpdateView();
-      }
-    });
+    const removeListeners = [
+      streamer.addEventListener("finished", () => {
+        if (this.canUpdate(streamer)) {
+          this.tryUpdateView();
+        }
+      }),
 
-    this.streamerList.set(streamer.id, { streamer, removeListener });
+      streamer.addEventListener("started", () => {
+        if (this.didMount && this.canUpdate(streamer)) {
+          this.updateComponentView();
+        }
+      }),
+    ];
+
+    this.streamerList.set(streamer.id, { streamer, removeListeners });
   }
 
   deleteStreamer(id: Streamer<any>["id"]) {
     const cache = this.streamerList.get(id);
 
     if (cache) {
-      cache.removeListener();
+      cache.removeListeners.forEach((cb) => cb());
       this.streamerList.delete(id);
     }
   }
