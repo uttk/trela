@@ -10,7 +10,7 @@ export interface ActionBase {
 }
 
 export interface ApisBase {
-  [key: string]: ((...args: any) => Promise<any>) | ((...args: any) => any);
+  [key: string]: (...args: any) => Promise<any>;
 }
 
 export interface Stream {
@@ -69,7 +69,7 @@ export interface DependencyManager {
 
 export interface TrelaOptions<S, A extends ApisBase> {
   apis?: A;
-  affecters?: (store: Store<S, A>) => Affecters;
+  affecters?: (store: Store<S, A>) => Partial<Affecters>;
 
   initState: S;
   reducer: TrelaReducer<S, A>;
@@ -102,6 +102,8 @@ export type CreateAction<AK, A extends ApisBase> = AK extends keyof A
     ? IsAction<{ type: AK; payload: ResolveReturnType<A[AK]> }>
     : IsAction<{ type: AK; payload: A[AK] }>
   : never;
+
+export type CreateActionsType<A extends ApisBase> = CreateAction<keyof A, A>;
 
 export type StreamerStatus =
   | "none"

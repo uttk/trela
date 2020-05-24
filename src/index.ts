@@ -12,4 +12,5 @@ export {
   TrelaOptions,
   TrelaReducer,
   StreamerStatus,
+  CreateActionsType,
 } from "./types";
