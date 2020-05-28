@@ -52,20 +52,6 @@ describe("DependencyManagerClass Tests", () => {
       expect(dep.didMount).toBeTruthy();
       expect(dep.parents).toHaveLength(0);
     });
-
-    test("execute popUpdate", () => {
-      const updateViewMock = jest.fn();
-      const dep = dependencyMg.createDependency(updateViewMock);
-
-      dependencyMg.registerDependency(dep);
-
-      dep.isUpdateStack = true;
-
-      dependencyMg.updateDependency(dep);
-
-      expect(dep.isUpdateStack).toBeFalsy();
-      expect(updateViewMock).toBeCalled();
-    });
   });
 
   describe("deleteDependency function", () => {
