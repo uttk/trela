@@ -1,80 +1,55 @@
-import { Dependency, Streamer } from "../types";
+import { Dependency } from "../types";
 
 export class DependencyClass implements Dependency {
   private updateComponentView: () => void;
-  private streamerList: Map<
-    string,
-    { streamer: Streamer<any>; removeListeners: Array<() => void> }
-  > = new Map();
+  private bookUpdateIds: string[] = [];
 
-  public id: number = NaN;
+  public id: number;
   public didMount: boolean = false;
   public parents: Dependency[] = [];
-  public isUpdateStack: boolean = false;
 
   constructor(id: number, updateComponentView: () => void) {
     this.id = id;
     this.updateComponentView = updateComponentView;
   }
 
-  private tryUpdateView() {
+  private isParentUpdate(id: string): boolean {
+    const parents = this.parents.concat();
+    let len = parents.length;
+
+    while (len--) {
+      if (parents[len].canUpdate(id)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  canUpdate(id: string) {
     if (!this.didMount) {
-      this.isUpdateStack = true;
-    } else {
-      this.updateComponentView();
-    }
-  }
-
-  private isParentUpdate(streamer: Streamer<any>): boolean {
-    const isUpdates = this.parents
-      .map((parent) => parent.canUpdate(streamer))
-      .filter((v) => v);
-
-    return isUpdates.length > 0;
-  }
-
-  popUpdate() {
-    if (this.isUpdateStack && this.didMount) {
-      this.isUpdateStack = false;
-      this.updateComponentView();
-    }
-  }
-
-  addStreamer(streamer: Streamer<any>) {
-    if (this.streamerList.has(streamer.id)) return;
-
-    const removeListeners = [
-      streamer.addEventListener("finished", () => {
-        if (this.canUpdate(streamer)) {
-          this.tryUpdateView();
-        }
-      }),
-
-      streamer.addEventListener("started", () => {
-        if (this.didMount && this.canUpdate(streamer)) {
-          this.updateComponentView();
-        }
-      }),
-    ];
-
-    this.streamerList.set(streamer.id, { streamer, removeListeners });
-  }
-
-  deleteStreamer(id: Streamer<any>["id"]) {
-    const cache = this.streamerList.get(id);
-
-    if (cache) {
-      cache.removeListeners.forEach((cb) => cb());
-      this.streamerList.delete(id);
-    }
-  }
-
-  canUpdate(streamer: Streamer<any>): boolean {
-    if (this.isParentUpdate(streamer)) {
       return false;
-    } else {
-      return this.streamerList.has(streamer.id);
     }
+
+    const hasId = this.bookUpdateIds.find((v) => v === id);
+
+    return Boolean(hasId) && !this.isParentUpdate(id);
+  }
+
+  bookUpdate(id: string) {
+    this.bookUpdateIds = this.bookUpdateIds.concat(id);
+  }
+
+  tryUpdateView(id: string) {
+    if (this.canUpdate(id)) {
+      this.updateComponentView();
+    }
+
+    this.bookUpdateIds = this.bookUpdateIds.filter((v) => v !== id);
+  }
+
+  forceUpdate() {
+    this.updateComponentView();
   }
 
   setParents(parents: Dependency[]) {

@@ -44,14 +44,13 @@ export interface Dependency {
   id: number;
   didMount: boolean;
   parents: Dependency[];
-  isUpdateStack: boolean;
 
-  popUpdate(): void;
+  forceUpdate(): void;
+  bookUpdate(id: string): void;
+  canUpdate(id: string): boolean;
   setMount(mount: boolean): void;
+  tryUpdateView(id: string): void;
   setParents(parents: Dependency[]): void;
-  addStreamer(straem: Streamer<any>): void;
-  canUpdate(stream: Streamer<any>): boolean;
-  deleteStreamer(id: Streamer<any>["id"]): void;
 }
 
 export interface StreamerManager<S> {
@@ -77,6 +76,7 @@ export interface TrelaOptions<S, A extends ApisBase> {
 
 export interface TrelaApis<S, A extends ApisBase> {
   apis: WrapApis<S, A>;
+  getState<R>(selector: (state: S) => [R] | [R, boolean]): R;
   all: (streamers: Streamer<S>[]) => Streamer<S>;
   steps: (streamers: Streamer<S>[]) => Streamer<S>;
 }
@@ -107,6 +107,7 @@ export type CreateActionsType<A extends ApisBase> = CreateAction<keyof A, A>;
 
 export type StreamerStatus =
   | "none"
+  | "once"
   | "started"
   | "finished"
   | "cancel"

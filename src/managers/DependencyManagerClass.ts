@@ -34,7 +34,6 @@ export class DependencyManagerClass implements DependencyManager {
     }
 
     dependency.setMount(true);
-    dependency.popUpdate();
 
     this.dependencies.set(dependency.id, dependency);
   }
