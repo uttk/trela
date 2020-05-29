@@ -26,7 +26,7 @@ export interface Store<S, A extends ApisBase> {
   getState(): S;
   dispatch(action: CreateAction<keyof A, A>): void;
   getOptions(): TrelaOptions<S, A>;
-  subscribe(callback: Subscriber<S>): void;
+  subscribe(callback: Subscriber<S>): () => void;
 }
 
 export interface Streamer<S> {
@@ -36,21 +36,23 @@ export interface Streamer<S> {
   error(error: Error): void;
   finish(payload?: any): void;
   cancel(payload?: any): void;
-  start<R>(selector: Selector<S, R>): [R, boolean];
+  start(): [S, boolean];
   addEventListener(status: StreamerStatus, cb: Listener): () => void;
 }
 
 export interface Dependency {
-  id: number;
+  readonly id: number;
+
   didMount: boolean;
   parents: Dependency[];
+  selectors: Selector<any, any>[];
+  updateComponentView: () => void;
 
-  forceUpdate(): void;
   bookUpdate(id: string): void;
   canUpdate(id: string): boolean;
-  setMount(mount: boolean): void;
   tryUpdateView(id: string): void;
-  setParents(parents: Dependency[]): void;
+  isListenState(state: any): boolean;
+  isParent(dependency: Dependency): boolean;
 }
 
 export interface StreamerManager<S> {
@@ -107,7 +109,7 @@ export type CreateActionsType<A extends ApisBase> = CreateAction<keyof A, A>;
 
 export type StreamerStatus =
   | "none"
-  | "once"
+  | "beforeStart"
   | "started"
   | "finished"
   | "cancel"
@@ -121,7 +123,7 @@ export type WrapApis<S, A extends ApisBase> = {
   [K in keyof A]: (...args: Parameters<A[K]>) => Streamer<S>;
 };
 
-export type Selector<S, R> = (state: S) => R;
+export type Selector<S, R> = (state: S) => [R] | [R, boolean];
 
 export type TrelaReducer<S, A extends ApisBase> = (
   state: S,

@@ -6,32 +6,35 @@ import { ApisBase, Streamer, TrelaApis, TrelaContextValue } from "../types";
 
 export const useTrela = <S, A extends ApisBase>(): TrelaApis<S, A> => {
   const context = useContext<TrelaContextValue<S, A>>(DefaultTrelaContext);
-  const dependency = useDependency(context);
   const { store, streamerMg } = context;
 
-  const settingStreamer = (streamer: Streamer<S>) => {
+  const dependency = useDependency(context);
+
+  const setup = (streamer: Streamer<S>) => {
     const id = streamer.id;
 
-    streamer.addEventListener("once", () => {
+    streamer.addEventListener("beforeStart", () => {
       streamer.addEventListener("started", () => {
         if (dependency.didMount) {
-          dependency.forceUpdate();
+          dependency.updateComponentView();
         }
 
         dependency.bookUpdate(id);
       });
-    });
 
-    streamer.addEventListener("finished", () => {
-      dependency.tryUpdateView(id);
+      streamer.addEventListener("finished", () => {
+        dependency.tryUpdateView(id);
+      });
     });
   };
 
   return {
-    apis: createWrapApis(dependency, context),
+    apis: createWrapApis(setup, context),
 
     getState: <R>(selector: (state: S) => [R] | [R, boolean]): R => {
       const [state] = selector(store.getState());
+
+      dependency.selectors.push(selector);
 
       return state;
     },
@@ -39,7 +42,7 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApis<S, A> => {
     steps: (streamers: Streamer<S>[]): Streamer<S> => {
       const streamer = streamerMg.createSeriesStreamer(streamers);
 
-      settingStreamer(streamer);
+      setup(streamer);
 
       return streamer;
     },
@@ -47,7 +50,7 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApis<S, A> => {
     all: (streamers: Streamer<S>[]): Streamer<S> => {
       const streamer = streamerMg.createParallelStreamer(streamers);
 
-      settingStreamer(streamer);
+      setup(streamer);
 
       return streamer;
     },

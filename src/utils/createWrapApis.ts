@@ -1,7 +1,7 @@
-import { ApisBase, Dependency, TrelaContextValue, WrapApis } from "../types";
+import { ApisBase, TrelaContextValue, WrapApis, Streamer } from "../types";
 
 export const createWrapApis = <S, A extends ApisBase>(
-  dependency: Dependency,
+  setup: (streamer: Streamer<S>) => void,
   context: TrelaContextValue<S, A>
 ): WrapApis<S, A> => {
   const { store, streamerMg } = context;
@@ -13,21 +13,9 @@ export const createWrapApis = <S, A extends ApisBase>(
 
         [request]: (...args: any[]) => {
           const streamer = streamerMg.createStreamer(request, args);
-          const id = streamer.id;
 
-          streamer.addEventListener("once", () => {
-            streamer.addEventListener("started", () => {
-              if (dependency.didMount) {
-                dependency.forceUpdate();
-              }
+          setup(streamer);
 
-              dependency.bookUpdate(id);
-            });
-          });
-
-          streamer.addEventListener("finished", () =>
-            dependency.tryUpdateView(id)
-          );
           return streamer;
         },
       };

@@ -1,4 +1,4 @@
-import { Store, Selector, Streamer, StreamerStatus } from "../../types";
+import { Store, Streamer, StreamerStatus } from "../../types";
 
 export class StreamerBaseClass<S> implements Streamer<S> {
   protected status: StreamerStatus = "none";
@@ -76,13 +76,14 @@ export class StreamerBaseClass<S> implements Streamer<S> {
     }
   }
 
-  start<R>(selector: Selector<S, R>): [R, boolean] {
+  start(): [S, boolean] {
+    this.notifyStatus("beforeStart");
+
     if (this.status === "none") {
-      this.notifyStatus("once");
       this.changeStatus("started");
       this.backStart();
     }
 
-    return [selector(this.store.getState()), this.status === "started"];
+    return [this.store.getState(), this.status === "started"];
   }
 }

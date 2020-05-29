@@ -38,7 +38,11 @@ export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
   }
 
   subscribe(callback: Subscriber<S>) {
-    this.subscribers.push(callback);
+    this.subscribers = this.subscribers.concat(callback);
+
+    return () => {
+      this.subscribers = this.subscribers.filter((f) => f !== callback);
+    };
   }
 
   dispatch(action: CreateAction<keyof A, A>) {

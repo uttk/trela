@@ -1,12 +1,13 @@
-import { Dependency } from "../types";
+import { Dependency, Selector } from "../types";
 
 export class DependencyClass implements Dependency {
-  private updateComponentView: () => void;
   private bookUpdateIds: string[] = [];
 
-  public id: number;
+  public readonly id: number;
   public didMount: boolean = false;
   public parents: Dependency[] = [];
+  public selectors: Selector<any, any>[] = [];
+  public updateComponentView: () => void;
 
   constructor(id: number, updateComponentView: () => void) {
     this.id = id;
@@ -21,6 +22,34 @@ export class DependencyClass implements Dependency {
       if (parents[len].canUpdate(id)) {
         return true;
       }
+    }
+
+    return false;
+  }
+
+  isParent(dependency: Dependency): boolean {
+    let len = this.parents.length;
+
+    while (len > 0) {
+      if (dependency.id === this.parents[len].id) {
+        return true;
+      }
+
+      --len;
+    }
+
+    return false;
+  }
+
+  isListenState(state: any): boolean {
+    let len = this.selectors.length;
+
+    while (len > 0) {
+      const [, isUpdate] = this.selectors[len](state);
+
+      if (isUpdate) return true;
+
+      --len;
     }
 
     return false;
@@ -46,17 +75,5 @@ export class DependencyClass implements Dependency {
     }
 
     this.bookUpdateIds = this.bookUpdateIds.filter((v) => v !== id);
-  }
-
-  forceUpdate() {
-    this.updateComponentView();
-  }
-
-  setParents(parents: Dependency[]) {
-    this.parents = parents.concat();
-  }
-
-  setMount(mount: boolean) {
-    this.didMount = mount;
   }
 }
