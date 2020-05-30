@@ -32,9 +32,7 @@ export class DependencyClass implements Dependency {
   isParent(dependency: Dependency): boolean {
     let len = this.parents.length;
 
-    while (len > 0) {
-      --len;
-
+    while (len--) {
       if (dependency.id === this.parents[len].id) {
         return true;
       }
@@ -46,12 +44,10 @@ export class DependencyClass implements Dependency {
   isListenState(state: any): boolean {
     let len = this.selectors.length;
 
-    while (len > 0) {
+    while (len--) {
       const [, isUpdate] = this.selectors[len](state);
 
       if (isUpdate) return true;
-
-      --len;
     }
 
     return false;
