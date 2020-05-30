@@ -18,10 +18,12 @@ export class DependencyClass implements Dependency {
     const parents = this.parents.concat();
     let len = parents.length;
 
-    while (len--) {
+    while (len > 0) {
       if (parents[len].canUpdate(id)) {
         return true;
       }
+
+      --len;
     }
 
     return false;

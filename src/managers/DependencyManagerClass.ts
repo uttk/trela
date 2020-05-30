@@ -9,20 +9,29 @@ export class DependencyManagerClass implements DependencyManager {
 
   constructor(store: Store<any, any>) {
     this.store = store;
-    this.store.subscribe(this.notifyStoreUpdate.bind(this));
+    this.store.subscribe((state) => {
+      this.tryComponentUpdate((dep) => dep.isListenState(state));
+    });
   }
 
-  private notifyStoreUpdate(state: any) {
-    let deps = Array.from(this.dependencies.values());
+  tryComponentUpdate(isUpdate: (dependency: Dependency) => boolean) {
+    let deps = [...this.dependencies.values()];
 
-    while (deps.length > 0) {
-      const dep = deps.shift();
+    deps.sort((a, b) => (a.parents.length > b.parents.length ? 1 : -1));
 
-      if (dep && dep.isListenState(state)) {
-        dep.updateComponentView();
-        deps = deps.filter((d) => !d.isParent(dep));
+    const updateDeps = deps.reduce<Dependency[]>((pre, dep) => {
+      let len = pre.length;
+
+      while (len--) {
+        if (dep.isParent(pre[len])) {
+          return pre;
+        }
       }
-    }
+
+      return isUpdate(dep) ? pre.concat(dep) : pre;
+    }, []);
+
+    updateDeps.forEach((dep) => dep.updateComponentView());
   }
 
   createDependency(updateView: () => void): Dependency {
@@ -40,6 +49,7 @@ export class DependencyManagerClass implements DependencyManager {
       dependency.parents = parents;
     }
 
+    dependency.selectors = [];
     dependency.didMount = false;
 
     this.dependencies.set(dependency.id, dependency);

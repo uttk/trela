@@ -9,7 +9,7 @@ export const createContextValue = <S, A extends ApisBase>(
 ): TrelaContextValue<S, A> => {
   const store = new StoreClass(options);
   const affecters = createAffecters(store);
-  const dependencyMg = new DependencyManagerClass();
+  const dependencyMg = new DependencyManagerClass(store);
   const streamerMg = new StreamerManagerClass(store, affecters);
 
   return {

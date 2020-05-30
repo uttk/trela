@@ -1,29 +1,35 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { useDependency } from "./useDependency";
 import { DefaultTrelaContext } from "../utils/context";
 import { createWrapApis } from "../utils/createWrapApis";
-import { ApisBase, Streamer, TrelaApis, TrelaContextValue } from "../types";
+import {
+  ApisBase,
+  Selector,
+  Streamer,
+  TrelaApis,
+  TrelaContextValue,
+  StreamerStatus,
+} from "../types";
 
 export const useTrela = <S, A extends ApisBase>(): TrelaApis<S, A> => {
   const context = useContext<TrelaContextValue<S, A>>(DefaultTrelaContext);
-  const { store, streamerMg } = context;
-
+  const { store, streamerMg, dependencyMg } = context;
   const dependency = useDependency(context);
+  const removeListeners = useMemo<Set<() => void>>(() => new Set(), []);
 
   const setup = (streamer: Streamer<S>) => {
     const id = streamer.id;
+    const addEvent = (status: StreamerStatus, cb: () => void) => {
+      removeListeners.add(streamer.addEventListener(status, cb));
+    };
 
-    streamer.addEventListener("beforeStart", () => {
-      streamer.addEventListener("started", () => {
-        if (dependency.didMount) {
-          dependency.updateComponentView();
-        }
+    removeListeners.forEach((f) => f());
+    removeListeners.clear();
 
-        dependency.bookUpdate(id);
-      });
-
-      streamer.addEventListener("finished", () => {
-        dependency.tryUpdateView(id);
+    addEvent("beforeStart", () => {
+      addEvent("started", () => dependency.bookUpdate(id));
+      addEvent("finished", () => {
+        dependencyMg.tryComponentUpdate((dep) => dep.canUpdate(id));
       });
     });
   };
@@ -31,7 +37,7 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApis<S, A> => {
   return {
     apis: createWrapApis(setup, context),
 
-    getState: <R>(selector: (state: S) => [R] | [R, boolean]): R => {
+    getState: <R>(selector: Selector<S, R>): R => {
       const [state] = selector(store.getState());
 
       dependency.selectors.push(selector);

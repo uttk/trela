@@ -66,6 +66,7 @@ export interface DependencyManager {
   updateDependency(dependency: Dependency): void;
   registerDependency(dependency: Dependency): void;
   createDependency(updateView: () => void): Dependency;
+  tryComponentUpdate(isUpdate: (dependency: Dependency) => boolean): void;
 }
 
 export interface TrelaOptions<S, A extends ApisBase> {
@@ -78,7 +79,7 @@ export interface TrelaOptions<S, A extends ApisBase> {
 
 export interface TrelaApis<S, A extends ApisBase> {
   apis: WrapApis<S, A>;
-  getState<R>(selector: (state: S) => [R] | [R, boolean]): R;
+  getState<R>(selector: Selector<S, R>): R;
   all: (streamers: Streamer<S>[]) => Streamer<S>;
   steps: (streamers: Streamer<S>[]) => Streamer<S>;
 }
