@@ -13,9 +13,9 @@ import {
   apis,
   sleep,
   reducer,
+  ApisType,
   initState,
   StateType,
-  ApisType,
   responseMockData,
 } from "./utils";
 
@@ -121,9 +121,9 @@ describe("Component Dependency Use Case", () => {
     await waitForElementToBeRemoved(() => queryByText("App Loading"));
     expect(queryByText("Child Loading")).toBeNull();
 
-    const refetchButotn = getByText("Refetch");
+    const refetchButton = getByText("Refetch");
 
-    fireEvent.click(refetchButotn);
+    fireEvent.click(refetchButton);
 
     await waitForElementToBeRemoved(() => queryByText("App Loading"));
     expect(queryByText("Child Loading")).toBeNull();

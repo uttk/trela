@@ -64,7 +64,7 @@ describe("Parallel Use Case", () => {
     </TrelaProvider>
   );
 
-  test("Can be displayed Login Status", async () => {
+  test("Can be displayed Loading Status", async () => {
     const { queryByText } = render(<Root />);
 
     await waitForElementToBeRemoved(() => queryByText("Loading"));
@@ -107,9 +107,9 @@ describe("Parallel Use Case", () => {
 
     await waitForElementToBeRemoved(() => queryByText("Loading"));
 
-    const refetchButotn = getByText("Refetch");
+    const refetchButton = getByText("Refetch");
 
-    fireEvent.click(refetchButotn);
+    fireEvent.click(refetchButton);
 
     await waitForElementToBeRemoved(() => queryByText("Loading"));
     await waitFor(() =>

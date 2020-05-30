@@ -20,8 +20,6 @@ import {
 } from "./utils";
 
 describe("Series Use Case", () => {
-  const timeout = { timeout: 1000 };
-
   let contextValue: TrelaContextValue<any, any>;
   let mountCounter: jest.Mock<any, any>;
 
@@ -65,16 +63,16 @@ describe("Series Use Case", () => {
     </TrelaProvider>
   );
 
-  test("Can be displayed Login Status", async () => {
+  test("Can be displayed Loading Status", async () => {
     const { queryByText } = render(<Root />);
 
-    await waitForElementToBeRemoved(() => queryByText("Loading"), timeout);
+    await waitForElementToBeRemoved(() => queryByText("Loading"));
   });
 
   test("Keep the display count to a minimum", async () => {
     const { queryByText } = render(<Root />);
 
-    await waitForElementToBeRemoved(() => queryByText("Loading"), timeout);
+    await waitForElementToBeRemoved(() => queryByText("Loading"));
 
     await waitFor(() => expect(mountCounter).toHaveBeenCalledTimes(2));
   });
@@ -82,13 +80,13 @@ describe("Series Use Case", () => {
   test("The fetched element is displayed", async () => {
     const { getByText, getAllByText } = render(<Root />);
 
-    await waitFor(() => expect(getByText("Logged in")).toBeDefined(), timeout);
+    await waitFor(() => expect(getByText("Logged in")).toBeDefined());
 
     await waitFor(() => {
       expect(getAllByText(/^Example/)).toHaveLength(
         responseMockData.users.length
       );
-    }, timeout);
+    });
   });
 
   test("Can cancel the fetchUsers action", async () => {
@@ -106,17 +104,18 @@ describe("Series Use Case", () => {
   test("Can refetch users", async () => {
     const { getByText, getAllByText, queryByText } = render(<Root />);
 
-    await waitForElementToBeRemoved(() => queryByText("Loading"), timeout);
+    await waitForElementToBeRemoved(() => queryByText("Loading"));
+    expect(getAllByText(/^Example/)).toHaveLength(
+      responseMockData.users.length
+    );
 
-    const refetchButotn = getByText("Refetch");
+    const refetchButton = getByText("Refetch");
 
-    fireEvent.click(refetchButotn);
+    fireEvent.click(refetchButton);
 
     await waitForElementToBeRemoved(() => queryByText("Loading"));
-    await waitFor(() =>
-      expect(getAllByText(/^Example/)).toHaveLength(
-        responseMockData.users.length
-      )
+    expect(getAllByText(/^Example/)).toHaveLength(
+      responseMockData.users.length
     );
 
     expect(mountCounter).toBeCalledTimes(4);
