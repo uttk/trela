@@ -80,7 +80,7 @@ describe("SeriesStreamerClass Tests", () => {
 
       const firstChildMock = forceStartMocks.shift();
 
-      const [state, isPending] = streamer.start((s) => s);
+      const [state, isPending] = streamer.start();
 
       expect(streamer["status"]).toEqual("started");
       expect(state).toEqual(initState);
@@ -98,7 +98,7 @@ describe("SeriesStreamerClass Tests", () => {
         forceStartMocks.push(mock);
       });
 
-      streamer.start((s) => s);
+      streamer.start();
       childStreamers[0].finish();
       childStreamers[1].finish();
 
@@ -109,12 +109,12 @@ describe("SeriesStreamerClass Tests", () => {
       const compliteMock = jest.fn();
 
       streamer.addEventListener("finished", compliteMock);
-      streamer.start((s) => s);
+      streamer.start();
       childStreamers.forEach((s) => s.finish());
       expect(compliteMock).toBeCalledTimes(1);
 
       streamer["status"] = "none";
-      streamer.start((s) => s);
+      streamer.start();
       childStreamers.forEach((s) => s.finish());
       expect(compliteMock).toBeCalledTimes(2);
     });
@@ -130,10 +130,10 @@ describe("SeriesStreamerClass Tests", () => {
 
       const firstMock = forceStartMocks.shift();
 
-      streamer.start((s) => s);
+      streamer.start();
       expect(firstMock).toBeCalledTimes(1);
 
-      streamer.start((s) => s);
+      streamer.start();
       expect(firstMock).toBeCalledTimes(1);
 
       forceStartMocks.forEach((mock) => expect(mock).not.toBeCalled());
@@ -170,7 +170,7 @@ describe("SeriesStreamerClass Tests", () => {
       childStreamers.forEach((st) => {
         st.cancel = cancelMock;
       });
-      streamer.start((s) => s);
+      streamer.start();
       streamer.cancel("test");
 
       expect(cancelMock).toBeCalledTimes(1);
@@ -203,7 +203,7 @@ describe("SeriesStreamerClass Tests", () => {
 
       forceStartMocks.shift();
 
-      streamer.start((s) => s);
+      streamer.start();
       streamer.cancel("test");
       childStreamers[0].finish();
 
@@ -220,7 +220,7 @@ describe("SeriesStreamerClass Tests", () => {
         st.error = errorMock;
       });
 
-      streamer.start((s) => s);
+      streamer.start();
       streamer.error(testError);
 
       expect(errorMock).toBeCalledTimes(1);
@@ -247,7 +247,7 @@ describe("SeriesStreamerClass Tests", () => {
         if (i) s.start = nextStartMock as any;
       });
 
-      streamer.start((s) => s);
+      streamer.start();
 
       setTimeout(() => {
         try {
@@ -272,7 +272,7 @@ describe("SeriesStreamerClass Tests", () => {
       const listenerMock: jest.Mock = jest.fn();
 
       streamer.addEventListener("finished", listenerMock);
-      streamer.start((s) => s);
+      streamer.start();
       streamer.finish();
 
       expect(listenerMock).toBeCalled();

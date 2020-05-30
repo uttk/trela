@@ -76,7 +76,7 @@ describe("ParallelStreamerClass Tests", () => {
         st.forceStart = forceStartMock;
       });
 
-      const [state, isPending] = streamer.start((s) => s);
+      const [state, isPending] = streamer.start();
 
       expect(streamer["status"]).toEqual("started");
       expect(forceStartMock).toBeCalledTimes(childStreamers.length);
@@ -88,12 +88,12 @@ describe("ParallelStreamerClass Tests", () => {
       const compliteMock = jest.fn();
 
       streamer.addEventListener("finished", compliteMock);
-      streamer.start((s) => s);
+      streamer.start();
       childStreamers.forEach((s) => s.finish());
       expect(compliteMock).toBeCalledTimes(1);
 
       streamer["status"] = "none";
-      streamer.start((s) => s);
+      streamer.start();
       childStreamers.forEach((s) => s.finish());
       expect(compliteMock).toBeCalledTimes(2);
     });
@@ -107,10 +107,10 @@ describe("ParallelStreamerClass Tests", () => {
         startEventMocks.push(mock);
       });
 
-      streamer.start((s) => s);
+      streamer.start();
       startEventMocks.forEach((mock) => expect(mock).toBeCalledTimes(1));
 
-      streamer.start((s) => s);
+      streamer.start();
       startEventMocks.forEach((mock) => expect(mock).toBeCalledTimes(1));
     });
   });
@@ -143,7 +143,7 @@ describe("ParallelStreamerClass Tests", () => {
         cancelMocks.push(mock);
       });
 
-      streamer.start((s) => s);
+      streamer.start();
       streamer.cancel("test");
 
       expect(streamer["status"]).toEqual("cancel");
@@ -178,7 +178,7 @@ describe("ParallelStreamerClass Tests", () => {
         errorMocks.push(mock);
       });
 
-      streamer.start((s) => s);
+      streamer.start();
       streamer.error(testError);
 
       expect(streamer["status"]).toEqual("error");
@@ -208,7 +208,7 @@ describe("ParallelStreamerClass Tests", () => {
       const listenerMock: jest.Mock = jest.fn();
 
       streamer.addEventListener("finished", listenerMock);
-      streamer.start((s) => s);
+      streamer.start();
       streamer.finish();
 
       expect(listenerMock).toBeCalled();

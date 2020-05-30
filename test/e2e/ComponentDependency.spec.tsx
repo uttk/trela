@@ -34,7 +34,7 @@ describe("Component Dependency Use Case", () => {
     const { steps, apis } = useTrela<StateType, ApisType>();
     const { checkLogin, fetchUsers } = apis;
     const ref = steps([checkLogin(), fetchUsers()]);
-    const [users, isLoading] = ref.start((state) => state.users);
+    const [{ users }, isLoading] = ref.start();
 
     childMountCounter();
 
@@ -55,7 +55,7 @@ describe("Component Dependency Use Case", () => {
     const { steps, apis } = useTrela<StateType, ApisType>();
     const { checkLogin, fetchUsers } = apis;
     const ref = steps([checkLogin(), fetchUsers()]);
-    const [{ isLogin, users }, isLoading] = ref.start((state) => state);
+    const [{ isLogin, users }, isLoading] = ref.start();
 
     mountCounter();
 

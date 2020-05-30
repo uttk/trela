@@ -67,7 +67,7 @@ describe("StreamerClass Tests", () => {
       const sendMock = jest.fn();
 
       stream.send = sendMock;
-      const [state, isPending] = streamer.start((s) => s);
+      const [state, isPending] = streamer.start();
 
       expect(streamer["status"]).toEqual("started");
       expect(sendMock).toBeCalled();
@@ -79,12 +79,12 @@ describe("StreamerClass Tests", () => {
       const compliteMock = jest.fn();
 
       streamer.addEventListener("finished", compliteMock);
-      streamer.start((s) => s);
+      streamer.start();
       stream["complite"](initEffect);
       expect(compliteMock).toBeCalledTimes(1);
 
       streamer["status"] = "none";
-      streamer.start((s) => s);
+      streamer.start();
       stream["complite"](initEffect);
       expect(compliteMock).toBeCalledTimes(2);
     });
@@ -93,10 +93,10 @@ describe("StreamerClass Tests", () => {
       const sendMock = jest.fn();
 
       stream.send = sendMock;
-      streamer.start((s) => s);
+      streamer.start();
       expect(sendMock).toBeCalledTimes(1);
 
-      streamer.start((s) => s);
+      streamer.start();
       expect(sendMock).toBeCalledTimes(1);
     });
   });
@@ -173,7 +173,7 @@ describe("StreamerClass Tests", () => {
       const listenerMock: jest.Mock = jest.fn();
 
       streamer.addEventListener("finished", listenerMock);
-      streamer.start((s) => s);
+      streamer.start();
       streamer.finish();
 
       expect(listenerMock).toBeCalled();

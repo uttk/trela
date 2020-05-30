@@ -35,7 +35,7 @@ describe("Series Use Case", () => {
     const { checkLogin, fetchUsers } = apis;
     const ref = steps([checkLogin(), fetchUsers()]);
 
-    const [{ isLogin, users }, isLoading] = ref.start((state) => state);
+    const [{ isLogin, users }, isLoading] = ref.start();
 
     mountCounter();
 

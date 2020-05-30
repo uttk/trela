@@ -1,7 +1,5 @@
 import { DependencyClass } from "../../src/elements/DependencyClass";
 
-import { Dependency } from "../../src/types";
-
 describe("DependencyClass Tests", () => {
   let dependency: DependencyClass;
   let updateViewMock: jest.Mock;
@@ -16,7 +14,7 @@ describe("DependencyClass Tests", () => {
       const id = "test";
       expect(dependency.canUpdate(id)).toBeFalsy();
 
-      dependency.setMount(true);
+      dependency.didMount = true;
       expect(dependency.canUpdate(id)).toBeFalsy();
 
       dependency.bookUpdate(id);
@@ -28,23 +26,16 @@ describe("DependencyClass Tests", () => {
       const parent = new DependencyClass(1, () => {});
 
       dependency.bookUpdate(id);
-      dependency.setMount(true);
-      dependency.setParents([parent]);
+      dependency.didMount = true;
+      dependency.parents = [parent];
       expect(dependency.canUpdate(id)).toBeTruthy();
 
       parent.bookUpdate(id);
-      parent.setMount(true);
+      parent.didMount = true;
       expect(dependency.canUpdate(id)).toBeFalsy();
 
-      parent.setMount(false);
+      parent.didMount = false;
       expect(dependency.canUpdate(id)).toBeTruthy();
-    });
-  });
-
-  describe("forceUpdate function", () => {
-    it("Always execute the passed updateView function", () => {
-      dependency.forceUpdate();
-      expect(updateViewMock);
     });
   });
 
@@ -68,7 +59,7 @@ describe("DependencyClass Tests", () => {
       expect(updateViewMock).not.toBeCalled();
 
       dependency.bookUpdate(id);
-      dependency.setMount(true);
+      dependency.didMount = true;
       dependency.tryUpdateView(id);
       expect(updateViewMock).toBeCalled();
     });
@@ -83,30 +74,6 @@ describe("DependencyClass Tests", () => {
       dependency.tryUpdateView(id);
       expect(dependency["bookUpdateIds"]).toHaveLength(0);
       expect(dependency["bookUpdateIds"]).not.toContain(id);
-    });
-  });
-
-  describe("setMount function", () => {
-    test("Chagne didMount value", () => {
-      dependency.setMount(false);
-      expect(dependency.didMount).toBeFalsy();
-
-      dependency.setMount(true);
-      expect(dependency.didMount).toBeTruthy();
-    });
-  });
-
-  describe("setParents function", () => {
-    test("Change parents value", () => {
-      const updateValue: Dependency[] = [];
-
-      dependency.setParents(updateValue);
-      expect(dependency.parents).toEqual(updateValue);
-
-      const updateValue2 = [dependency];
-
-      dependency.setParents(updateValue2);
-      expect(dependency.parents).toEqual(updateValue2);
     });
   });
 });

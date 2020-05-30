@@ -26,7 +26,7 @@ describe("createWrapApis function Tests", () => {
   });
 
   test("Returns the wrapped api", () => {
-    const wrapApis = createWrapApis(dependency, contextValue);
+    const wrapApis = createWrapApis(() => {}, contextValue);
 
     expect(Object.keys(wrapApis).sort()).toStrictEqual(
       Object.keys(apisMock).sort()
@@ -34,7 +34,7 @@ describe("createWrapApis function Tests", () => {
   });
 
   test("Wrapped Api returns Streamer instance", () => {
-    const wrapApis = createWrapApis(dependency, contextValue);
+    const wrapApis = createWrapApis(() => {}, contextValue);
 
     Object.keys(apisMock).forEach((key) => {
       const k = key as keyof typeof apisMock;

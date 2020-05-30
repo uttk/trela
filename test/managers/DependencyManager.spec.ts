@@ -1,11 +1,15 @@
+import { StoreClass } from "../../src/elements/StoreClass";
 import { DependencyClass } from "../../src/elements/DependencyClass";
 import { DependencyManagerClass } from "../../src/managers/DependencyManagerClass";
 
 describe("DependencyManagerClass Tests", () => {
+  const initState = { count: 0 };
+  let store: StoreClass<typeof initState, any>;
   let dependencyMg: DependencyManagerClass;
 
   beforeEach(() => {
-    dependencyMg = new DependencyManagerClass();
+    store = new StoreClass({ initState, reducer: (s) => s });
+    dependencyMg = new DependencyManagerClass(store);
   });
 
   describe("createDependency function", () => {

@@ -59,24 +59,24 @@ describe("StreamerBaseClass Tests", () => {
       const backStartMock = jest.fn();
 
       streamer["backStart"] = backStartMock;
-      const [state, isLoading] = streamer.start((state) => state);
+      const [state, isLoading] = streamer.start();
 
       expect(state).toEqual(initState);
       expect(isLoading).toBeTruthy();
       expect(backStartMock).toBeCalled();
 
-      streamer.start((state) => state);
+      streamer.start();
       expect(backStartMock).toBeCalledTimes(1);
     });
 
     test("Reflects the status", () => {
-      let [state, isPending] = streamer.start(() => "test");
+      let [state, isPending] = streamer.start();
 
-      expect(state).toEqual("test");
+      expect(state).toEqual(initState);
       expect(isPending).toBeTruthy();
 
       streamer.finish();
-      [, isPending] = streamer.start((s) => s);
+      [, isPending] = streamer.start();
       expect(isPending).toBeFalsy();
     });
   });
@@ -154,7 +154,7 @@ describe("StreamerBaseClass Tests", () => {
       const eventMock = jest.fn();
 
       streamer.addEventListener("finished", eventMock);
-      streamer.start((s) => s);
+      streamer.start();
       streamer.finish();
 
       expect(streamer["status"]).toEqual("finished");

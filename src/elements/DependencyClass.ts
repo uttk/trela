@@ -19,11 +19,11 @@ export class DependencyClass implements Dependency {
     let len = parents.length;
 
     while (len > 0) {
+      --len;
+
       if (parents[len].canUpdate(id)) {
         return true;
       }
-
-      --len;
     }
 
     return false;
@@ -33,11 +33,11 @@ export class DependencyClass implements Dependency {
     let len = this.parents.length;
 
     while (len > 0) {
+      --len;
+
       if (dependency.id === this.parents[len].id) {
         return true;
       }
-
-      --len;
     }
 
     return false;
