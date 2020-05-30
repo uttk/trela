@@ -110,7 +110,6 @@ export type CreateActionsType<A extends ApisBase> = CreateAction<keyof A, A>;
 
 export type StreamerStatus =
   | "none"
-  | "beforeStart"
   | "started"
   | "finished"
   | "cancel"

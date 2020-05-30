@@ -15,20 +15,16 @@ export class StreamerBaseClass<S> implements Streamer<S> {
     this.store = store;
   }
 
-  protected notifyStatus(status: StreamerStatus, payload?: any) {
-    const callbacks = this.eventCallbacks.get(status);
-
-    if (callbacks) {
-      callbacks.forEach((cb) => cb(payload));
-    }
-  }
-
   protected changeStatus(status: StreamerStatus, payload?: any) {
     if (this.status === status) return;
 
     this.status = status;
 
-    this.notifyStatus(status, payload);
+    const callbacks = this.eventCallbacks.get(status);
+
+    if (callbacks) {
+      callbacks.forEach((cb) => cb(payload));
+    }
   }
 
   protected backStart() {}
@@ -77,8 +73,6 @@ export class StreamerBaseClass<S> implements Streamer<S> {
   }
 
   start(): [S, boolean] {
-    this.notifyStatus("beforeStart");
-
     if (this.status === "none") {
       this.changeStatus("started");
       this.backStart();

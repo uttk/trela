@@ -26,11 +26,16 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApis<S, A> => {
     removeListeners.forEach((f) => f());
     removeListeners.clear();
 
-    addEvent("beforeStart", () => {
-      addEvent("started", () => dependency.bookUpdate(id));
-      addEvent("finished", () => {
-        dependencyMg.tryComponentUpdate((dep) => dep.canUpdate(id));
-      });
+    addEvent("started", () => {
+      dependency.bookUpdate(id);
+
+      if (dependency.didMount) {
+        dependency.updateComponentView();
+      }
+    });
+
+    addEvent("finished", () => {
+      dependencyMg.tryComponentUpdate((dep) => dep.canUpdate(id));
     });
   };
 
