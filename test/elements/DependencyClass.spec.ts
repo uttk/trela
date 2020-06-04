@@ -51,29 +51,39 @@ describe("DependencyClass Tests", () => {
     });
   });
 
-  describe("tryUpdateView function", () => {
-    test("Execute the passing updateView function", () => {
-      const id = "test";
+  describe("isParent function", () => {
+    test("Determine if the passed Dependency is a parent", () => {
+      const parent = new DependencyClass(111, () => void 0);
+      const other = new DependencyClass(11, () => void 0);
 
-      dependency.tryUpdateView(id);
-      expect(updateViewMock).not.toBeCalled();
+      dependency.parents.push(parent);
 
-      dependency.bookUpdate(id);
-      dependency.didMount = true;
-      dependency.tryUpdateView(id);
-      expect(updateViewMock).toBeCalled();
+      expect(dependency.isParent(other)).toBeFalsy();
+      expect(dependency.isParent(parent)).toBeTruthy();
+    });
+  });
+
+  describe("isListenState function", () => {
+    test("returns false if there is no selector", () => {
+      expect(dependency.isListenState(0)).toBeFalsy();
     });
 
-    test("Delete the passing id from bookUpdateIds", () => {
-      const id = "test";
+    test("Executes the added selector and returns a Boolean from the result", () => {
+      const args = 0;
+      const firstSelector = jest.fn<[number], any[]>(() => [0]);
 
-      dependency.bookUpdate(id);
-      expect(dependency["bookUpdateIds"]).toHaveLength(1);
-      expect(dependency["bookUpdateIds"]).toContain(id);
+      dependency.selectors.push(firstSelector);
 
-      dependency.tryUpdateView(id);
-      expect(dependency["bookUpdateIds"]).toHaveLength(0);
-      expect(dependency["bookUpdateIds"]).not.toContain(id);
+      expect(dependency.isListenState(args)).toBeFalsy();
+      expect(firstSelector).toBeCalled();
+      expect(firstSelector).toBeCalledWith(args);
+
+      const secondSelector = jest.fn<[number, boolean], any[]>(() => [0, true]);
+      dependency.selectors.push(secondSelector);
+
+      expect(dependency.isListenState(args)).toBeTruthy();
+      expect(secondSelector).toBeCalled();
+      expect(secondSelector).toBeCalledWith(args);
     });
   });
 });
