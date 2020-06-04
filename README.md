@@ -294,6 +294,47 @@ const ExampleComponent = () => {
 render(<Root />, document.getElementById("root"));
 ```
 
+## getState
+
+Returns the store values and listens to the store value.
+
+```jsx
+const contextValue = createContextValue({
+  /* ... */
+
+  apis: {
+    fetchUser: async (uid) => {
+      /* ... */
+    },
+
+    isLogin: async () => {
+      /* ... */
+    },
+  },
+});
+
+const Root = () => (
+  <TrelaProvider value={contextValue}>
+    <ExampleComponent />
+  </TrelaProvider>
+);
+
+const ExampleComponent = () => {
+  const { getState } = useTrela();
+
+  // Returns the 0th value in the array.
+  // When 1th value in the array is True, 
+  // the view will be updated when the Store value is updated.
+  const selectedState = getState((state) => [state, true])
+
+
+  /* ... */
+};
+
+render(<Root />, document.getElementById("root"));
+```
+
+
 ## steps
 
 Execute asynchronous actions serially.
