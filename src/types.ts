@@ -50,7 +50,6 @@ export interface Dependency {
 
   bookUpdate(id: string): void;
   canUpdate(id: string): boolean;
-  tryUpdateView(id: string): void;
   isListenState(state: any): boolean;
   isParent(dependency: Dependency): boolean;
 }

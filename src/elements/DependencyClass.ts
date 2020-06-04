@@ -18,9 +18,7 @@ export class DependencyClass implements Dependency {
     const parents = this.parents.concat();
     let len = parents.length;
 
-    while (len > 0) {
-      --len;
-
+    while (len--) {
       if (parents[len].canUpdate(id)) {
         return true;
       }
@@ -65,13 +63,5 @@ export class DependencyClass implements Dependency {
 
   bookUpdate(id: string) {
     this.bookUpdateIds = this.bookUpdateIds.concat(id);
-  }
-
-  tryUpdateView(id: string) {
-    if (this.canUpdate(id)) {
-      this.updateComponentView();
-    }
-
-    this.bookUpdateIds = this.bookUpdateIds.filter((v) => v !== id);
   }
 }

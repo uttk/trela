@@ -29,8 +29,8 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApis<S, A> => {
     addEvent("started", () => {
       dependency.bookUpdate(id);
 
-      if (dependency.didMount) {
-        dependency.updateComponentView();
+      if (dependency.canUpdate(id)) {
+        dependencyMg.tryComponentUpdate((dep) => dependency.id === dep.id);
       }
     });
 
