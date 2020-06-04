@@ -57,21 +57,24 @@ describe("Listen Store Tests", () => {
   );
 
   test("App Component listens to users in the store", async () => {
-    const { queryByText, getAllByText } = render(<Root listenStore={true} />);
+    const { queryByText, queryAllByText } = render(<Root listenStore={true} />);
 
     await waitForElementToBeRemoved(() => queryByText("Loading"));
 
     expect(mountCounter).toBeCalledTimes(2);
-    expect(getAllByText(/^Example/)).toHaveLength(
+    expect(queryAllByText(/^Example/)).toHaveLength(
       responseMockData.users.length
     );
   });
 
   test("App Component doesn't listen to users in the store", async () => {
-    const { queryByText } = render(<Root listenStore={false} />);
+    const { queryByText, queryAllByText } = render(
+      <Root listenStore={false} />
+    );
 
     await waitForElementToBeRemoved(() => queryByText("Loading"));
 
     expect(mountCounter).toBeCalledTimes(1);
+    expect(queryAllByText(/^Example/)).toHaveLength(0);
   });
 });
