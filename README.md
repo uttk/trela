@@ -47,7 +47,7 @@ const Root = () => (
 const ExampleComponent = () => {
   const { apis } = useTrela();
   const { anyApi } = apis;
-  const [state] = anyApi().start((state) => state);
+  const [state] = anyApi().start();
 
   /* ... */
 };
@@ -109,7 +109,8 @@ import { createContextValue, TrelaProvider, useTrela } from "trela";
 const App = () => {
   const { apis } = useTrela();
   const { fechUser } = apis;
-  const [user, isPending] = fetchUser().start((state) => state.user);
+  const [state, isPending] = fetchUser().start();
+  const { user } = state;
 
   return (
     <div>
@@ -286,7 +287,7 @@ const Root = () => (
 const ExampleComponent = () => {
   const { apis } = useTrela();
   const { fechUser } = apis;
-  const [state, isPending] = fetchUser("example-uid").start((s) => s);
+  const [state, isPending] = fetchUser("example-uid").start();
 
   /* ... */
 };
@@ -368,7 +369,7 @@ const ExampleComponent = () => {
   // In this example: checkLogin -> fetchUser
   const ref = steps([checkLogin(), fetchUser("example-uid")]);
 
-  const [state, isPending] = ref.start((state) => state);
+  const [state, isPending] = ref.start();
 
   /* ... */
 };
@@ -412,7 +413,7 @@ const ExampleComponent = () => {
   // Execute asynchronous actions in parallel
   const ref = all([checkLogin(), fetchUser("example-uid")]);
 
-  const [state, isPending] = ref.start((state) => state);
+  const [state, isPending] = ref.start();
 
   /* ... */
 };
@@ -436,7 +437,7 @@ const contextValue = createContextValue({
 const ExampleComponent = () => {
   const { apis } = useTrela();
   const { anyAPI } = apis;
-  const [state, isPending] = anyAPI("Any arguments").start((state) => state);
+  const [state, isPending] = anyAPI("Any arguments").start();
 
   /* ... */
 };
@@ -488,7 +489,7 @@ const ExampleComponent = () => {
   const { apis } = useTrela();
   const { anyAPI } = apis;
   const ref = anyAPI("Any arguments");
-  const [state, isPending] = ref.start((state) => state);
+  const [state, isPending] = ref.start();
 
   return (
     <>
@@ -521,7 +522,7 @@ const ExampleComponent = () => {
   const { apis } = useTrela();
   const { anyAPI } = apis;
   const ref = anyAPI("Any arguments");
-  const [state, isPending] = ref.start((state) => state);
+  const [state, isPending] = ref.start();
 
   return (
     <>
@@ -554,7 +555,7 @@ const ExampleComponent = () => {
   const { apis } = useTrela();
   const { anyAPI } = apis;
   const ref = anyAPI("Any arguments");
-  const [state, isPending] = ref.start((state) => state);
+  const [state, isPending] = ref.start();
 
   return (
     <>
@@ -587,7 +588,7 @@ const ExampleComponent = () => {
   const { apis } = useTrela();
   const { anyAPI } = apis;
   const ref = anyAPI("Any arguments");
-  const [state, isPending] = ref.start((state) => state);
+  const [state, isPending] = ref.start();
 
   useEffect(() => {
     const types = ["started", "cancel", "error", "finished"];
