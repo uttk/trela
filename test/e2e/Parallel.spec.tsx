@@ -34,7 +34,7 @@ describe("Parallel Use Case", () => {
 
     const ref = all([checkLogin(), fetchUsers()]);
 
-    const [{ isLogin, users }, isLoading] = ref.start();
+    const [{ isLogin, users }, isLoading] = ref.once();
 
     mountCounter();
 

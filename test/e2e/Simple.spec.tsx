@@ -31,7 +31,7 @@ describe("Simple Use Case", () => {
   const App = () => {
     const { apis } = useTrela<StateType, ApisType>();
     const { fetchUsers } = apis;
-    const [{ users }, isLoading] = fetchUsers().start();
+    const [{ users }, isLoading] = fetchUsers().once();
 
     mountCounter();
 

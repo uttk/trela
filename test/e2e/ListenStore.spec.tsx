@@ -25,7 +25,7 @@ describe("Listen Store Tests", () => {
   const UserLoader = () => {
     const { apis } = useTrela<StateType, ApisType>();
     const { fetchUsers } = apis;
-    const [, isLoading] = fetchUsers().start();
+    const [, isLoading] = fetchUsers().once();
 
     return isLoading ? <p>Loading</p> : null;
   };
