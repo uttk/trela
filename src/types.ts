@@ -33,10 +33,11 @@ export interface Streamer<S> {
   readonly id: string;
 
   forceStart(): void;
+  once(): [S, boolean];
+  start(): [S, boolean];
   error(error: Error): void;
   finish(payload?: any): void;
   cancel(payload?: any): void;
-  start(): [S, boolean];
   addEventListener(status: StreamerStatus, cb: Listener): () => void;
 }
 
