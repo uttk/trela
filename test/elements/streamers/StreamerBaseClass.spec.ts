@@ -54,29 +54,33 @@ describe("StreamerBaseClass Tests", () => {
     });
   });
 
-  describe("start function", () => {
+  describe("once function", () => {
     test("Execute backStart only once", () => {
       const backStartMock = jest.fn();
 
       streamer["backStart"] = backStartMock;
-      const [state, isLoading] = streamer.start();
+      const [state, isLoading] = streamer.once();
 
       expect(state).toEqual(initState);
       expect(isLoading).toBeTruthy();
       expect(backStartMock).toBeCalled();
 
-      streamer.start();
+      streamer.once();
+      expect(backStartMock).toBeCalledTimes(1);
+
+      streamer.finish();
+      streamer.once();
       expect(backStartMock).toBeCalledTimes(1);
     });
 
     test("Reflects the status", () => {
-      let [state, isPending] = streamer.start();
+      let [state, isPending] = streamer.once();
 
       expect(state).toEqual(initState);
       expect(isPending).toBeTruthy();
 
       streamer.finish();
-      [, isPending] = streamer.start();
+      [, isPending] = streamer.once();
       expect(isPending).toBeFalsy();
     });
   });
@@ -154,7 +158,7 @@ describe("StreamerBaseClass Tests", () => {
       const eventMock = jest.fn();
 
       streamer.addEventListener("finished", eventMock);
-      streamer.start();
+      streamer["changeStatus"]("started");
       streamer.finish();
 
       expect(streamer["status"]).toEqual("finished");

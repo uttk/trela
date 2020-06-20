@@ -62,12 +62,12 @@ describe("StreamerClass Tests", () => {
     });
   });
 
-  describe("start function", () => {
+  describe("once function", () => {
     test("Execute the send function of stream", () => {
       const sendMock = jest.fn();
 
       stream.send = sendMock;
-      const [state, isPending] = streamer.start();
+      const [state, isPending] = streamer.once();
 
       expect(streamer["status"]).toEqual("started");
       expect(sendMock).toBeCalled();
@@ -79,24 +79,19 @@ describe("StreamerClass Tests", () => {
       const compliteMock = jest.fn();
 
       streamer.addEventListener("finished", compliteMock);
-      streamer.start();
+      streamer.once();
       stream["complite"](initEffect);
       expect(compliteMock).toBeCalledTimes(1);
-
-      streamer["status"] = "none";
-      streamer.start();
-      stream["complite"](initEffect);
-      expect(compliteMock).toBeCalledTimes(2);
     });
 
     test("Execute the send function of stream only once", () => {
       const sendMock = jest.fn();
 
       stream.send = sendMock;
-      streamer.start();
+      streamer.once();
       expect(sendMock).toBeCalledTimes(1);
 
-      streamer.start();
+      streamer.once();
       expect(sendMock).toBeCalledTimes(1);
     });
   });
@@ -173,7 +168,7 @@ describe("StreamerClass Tests", () => {
       const listenerMock: jest.Mock = jest.fn();
 
       streamer.addEventListener("finished", listenerMock);
-      streamer.start();
+      streamer["changeStatus"]("started");
       streamer.finish();
 
       expect(listenerMock).toBeCalled();
