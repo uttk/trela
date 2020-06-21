@@ -1,5 +1,6 @@
 import { StreamerBaseClass } from "../../../src/elements/streamers/StreamerBaseClass";
 import { StoreClass } from "../../../src/elements/StoreClass";
+import { StreamerStatus } from "../../../src/types";
 
 describe("StreamerBaseClass Tests", () => {
   const initState = 0;
@@ -54,8 +55,35 @@ describe("StreamerBaseClass Tests", () => {
     });
   });
 
+  describe("start function", () => {
+    test("Execute the backStart function when the streamer status other than 'started'", () => {
+      const backStartMock = jest.fn();
+      const status: StreamerStatus[] = [
+        "none",
+        "error",
+        "cancel",
+        "started",
+        "finished",
+      ];
+
+      streamer["backStart"] = backStartMock;
+
+      status.forEach((kind) => {
+        streamer["status"] = kind;
+        streamer.start();
+
+        if (kind !== "started") {
+          expect(backStartMock).toBeCalledTimes(1);
+          backStartMock.mockReset();
+        } else {
+          expect(backStartMock).not.toBeCalled();
+        }
+      });
+    });
+  });
+
   describe("once function", () => {
-    test("Execute backStart only once", () => {
+    test("Execute the backStart function only once", () => {
       const backStartMock = jest.fn();
 
       streamer["backStart"] = backStartMock;
@@ -74,14 +102,17 @@ describe("StreamerBaseClass Tests", () => {
     });
 
     test("Reflects the status", () => {
+      const latestState = "latest value";
       let [state, isPending] = streamer.once();
 
       expect(state).toEqual(initState);
       expect(isPending).toBeTruthy();
 
+      store["state"] = latestState;
       streamer.finish();
-      [, isPending] = streamer.once();
+      [state, isPending] = streamer.once();
       expect(isPending).toBeFalsy();
+      expect(state).toBe(latestState);
     });
   });
 
