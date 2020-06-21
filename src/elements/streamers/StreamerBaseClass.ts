@@ -65,11 +65,13 @@ export class StreamerBaseClass<S> implements Streamer<S> {
     }
   }
 
-  forceStart() {
-    if (this.status !== "started") {
-      this.changeStatus("started");
-      this.backStart();
+  forceStart(cancel?: boolean, payload?: any) {
+    if (cancel) {
+      this.cancel(payload);
     }
+
+    this.changeStatus("started");
+    this.backStart();
   }
 
   start() {

@@ -57,7 +57,7 @@ describe("StreamerBaseClass Tests", () => {
 
   describe("start function", () => {
     test("Execute the backStart function when the streamer status other than 'started'", () => {
-      const backStartMock = jest.fn();
+      const backStartMock = jest.fn(streamer["backStart"].bind(streamer));
       const status: StreamerStatus[] = [
         "none",
         "error",
@@ -84,7 +84,7 @@ describe("StreamerBaseClass Tests", () => {
 
   describe("once function", () => {
     test("Execute the backStart function only once", () => {
-      const backStartMock = jest.fn();
+      const backStartMock = jest.fn(streamer["backStart"].bind(streamer));
 
       streamer["backStart"] = backStartMock;
       const [state, isLoading] = streamer.once();
@@ -117,24 +117,36 @@ describe("StreamerBaseClass Tests", () => {
   });
 
   describe("forceStart function", () => {
-    test("Always execute backStart whenever not in 'started' status", () => {
-      const backStartMock = jest.fn();
+    test("Always execute the backStart function", () => {
+      const backStartMock = jest.fn(streamer["backStart"].bind(streamer));
+      const status: StreamerStatus[] = [
+        "none",
+        "error",
+        "cancel",
+        "started",
+        "finished",
+      ];
+
       streamer["backStart"] = backStartMock;
 
-      streamer.forceStart();
-      expect(backStartMock).toBeCalledTimes(1);
+      status.forEach((kind) => {
+        streamer["status"] = kind;
+        streamer.forceStart();
+        expect(backStartMock).toBeCalled();
+        backStartMock.mockReset();
+      });
+    });
 
-      streamer.cancel();
-      streamer.forceStart();
-      expect(backStartMock).toBeCalledTimes(2);
+    test("Execute the cancel function when the 1th argument is true", () => {
+      const backStartMock = jest.fn(streamer["backStart"].bind(streamer));
+      const cancelMock = jest.fn(streamer.cancel.bind(streamer));
 
-      streamer.error(new Error(""));
-      streamer.forceStart();
-      expect(backStartMock).toBeCalledTimes(3);
+      streamer["backStart"] = backStartMock;
+      streamer.cancel = cancelMock;
+      streamer.forceStart(true);
 
-      streamer.finish();
-      streamer.forceStart();
-      expect(backStartMock).toBeCalledTimes(4);
+      expect(cancelMock).toBeCalled();
+      expect(backStartMock).toBeCalled();
     });
   });
 
