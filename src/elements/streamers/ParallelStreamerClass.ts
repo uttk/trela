@@ -34,7 +34,7 @@ export class ParallelStreamerClass<S> extends StreamerBaseClass<S> {
 
       this.removeListeners.push(...removeListeners);
 
-      streamer.forceStart();
+      streamer.start();
     });
   }
 

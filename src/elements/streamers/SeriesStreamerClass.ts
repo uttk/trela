@@ -30,7 +30,7 @@ export class SeriesStreamerClass<S> extends StreamerBaseClass<S> {
         this.backStart.bind(this)
       );
 
-      node.forceStart();
+      node.start();
     } else {
       this.finish();
     }

@@ -16,25 +16,25 @@ export interface ApisBase {
 export interface Stream {
   readonly id: string;
 
-  send(type: Effect["type"], payload?: any): void;
   onComplite(callback: CompliteFunc): () => void;
+  send(type: Effect["type"], payload?: any): void;
   setAffecter(type: string, affecter: Affecter): void;
 }
 
 export interface Store<S, A extends ApisBase> {
   init(): void;
   getState(): S;
-  dispatch(action: CreateAction<keyof A, A>): void;
   getOptions(): TrelaOptions<S, A>;
   subscribe(callback: Subscriber<S>): () => void;
+  dispatch(action: CreateAction<keyof A, A>): void;
 }
 
 export interface Streamer<S> {
   readonly id: string;
 
+  start(): void;
   forceStart(): void;
   once(): [S, boolean];
-  start(): [S, boolean];
   error(error: Error): void;
   finish(payload?: any): void;
   cancel(payload?: any): void;

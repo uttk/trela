@@ -72,13 +72,11 @@ export class StreamerBaseClass<S> implements Streamer<S> {
     }
   }
 
-  start(): [S, boolean] {
-    if (this.status === "none") {
+  start() {
+    if (this.status !== "started") {
       this.changeStatus("started");
       this.backStart();
     }
-
-    return [this.store.getState(), this.status === "started"];
   }
 
   once(): [S, boolean] {
