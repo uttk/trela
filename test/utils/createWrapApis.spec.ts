@@ -1,5 +1,4 @@
 import { createWrapApis } from "../../src/utils/createWrapApis";
-import { DependencyClass } from "../../src/elements/DependencyClass";
 import { createContextValue } from "../../src/utils/createContextValue";
 import { TrelaContextValue } from "../../src/types";
 import { StreamerBaseClass } from "../../src/elements/streamers/StreamerBaseClass";
@@ -11,8 +10,6 @@ describe("createWrapApis function Tests", () => {
     testApi: async () => "NNN",
   };
 
-  let updateMock: jest.Mock;
-  let dependency: DependencyClass;
   let contextValue: TrelaContextValue<any, typeof apisMock>;
 
   beforeEach(() => {
@@ -21,8 +18,6 @@ describe("createWrapApis function Tests", () => {
       reducer: (s) => s,
       apis: apisMock,
     });
-    updateMock = jest.fn();
-    dependency = new DependencyClass(0, updateMock);
   });
 
   test("Returns the wrapped api", () => {
