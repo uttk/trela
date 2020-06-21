@@ -1,7 +1,7 @@
 import { StoreClass } from "../../../src/elements/StoreClass";
 import { StreamClass } from "../../../src/elements/StreamClass";
 import { StreamerClass } from "../../../src/elements/streamers/StreamerClass";
-import { Effect } from "../../../src/types";
+import { Effect, StreamerStatus } from "../../../src/types";
 
 describe("StreamerClass Tests", () => {
   const initState = 0;
@@ -19,99 +19,60 @@ describe("StreamerClass Tests", () => {
     streamer = new StreamerClass(stream, store);
   });
 
-  describe("addEventListener function", () => {
-    test("Can be notified of events", () => {
-      const eventMock = jest.fn();
-
-      streamer.addEventListener("error", eventMock);
-      streamer.addEventListener("cancel", eventMock);
-      streamer.addEventListener("started", eventMock);
-      streamer.addEventListener("finished", eventMock);
-
-      streamer["changeStatus"]("error");
-      expect(eventMock).toBeCalledTimes(1);
-
-      streamer["changeStatus"]("cancel");
-      expect(eventMock).toBeCalledTimes(2);
-
-      streamer["changeStatus"]("started");
-      expect(eventMock).toBeCalledTimes(3);
-
-      streamer["changeStatus"]("finished");
-      expect(eventMock).toBeCalledTimes(4);
-    });
-
-    test("Can stop event listening", () => {
-      const eventMock = jest.fn();
-
-      streamer.addEventListener("error", eventMock)();
-      streamer["changeStatus"]("error");
-      expect(eventMock).not.toBeCalled();
-
-      streamer.addEventListener("cancel", eventMock)();
-      streamer["changeStatus"]("cancel");
-      expect(eventMock).not.toBeCalled();
-
-      streamer.addEventListener("started", eventMock)();
-      streamer["changeStatus"]("started");
-      expect(eventMock).not.toBeCalled();
-
-      streamer.addEventListener("finished", eventMock)();
-      streamer["changeStatus"]("finished");
-      expect(eventMock).not.toBeCalled();
-    });
-  });
-
-  describe("once function", () => {
-    test("Execute the send function of stream", () => {
-      const sendMock = jest.fn();
+  describe("backStart function", () => {
+    test("Execute the stream's send function", () => {
+      const sendMock = jest.fn(stream.send.bind(stream));
 
       stream.send = sendMock;
-      const [state, isPending] = streamer.once();
+      streamer["status"] = "started";
+      streamer["backStart"]();
 
       expect(streamer["status"]).toEqual("started");
       expect(sendMock).toBeCalled();
-      expect(state).toEqual(initState);
-      expect(isPending).toBeTruthy();
     });
 
-    test("Receive notification of stream completion", () => {
+    test("Receive notification of the stream completion", () => {
       const compliteMock = jest.fn();
+      const exec = () => {
+        streamer["status"] = "started";
+        streamer["backStart"]();
+        stream["complite"](initEffect);
+      };
 
       streamer.addEventListener("finished", compliteMock);
-      streamer.once();
-      stream["complite"](initEffect);
+
+      exec();
       expect(compliteMock).toBeCalledTimes(1);
+      expect(streamer["status"]).toBe("finished");
+
+      exec();
+      expect(compliteMock).toBeCalledTimes(2);
+      expect(streamer["status"]).toBe("finished");
     });
 
-    test("Execute the send function of stream only once", () => {
-      const sendMock = jest.fn();
+    test("Execute the stream's send function when the streamer status is 'started'", () => {
+      const sendMock = jest.fn(stream.send.bind(stream));
+      const status: StreamerStatus[] = [
+        "none",
+        "error",
+        "cancel",
+        "started",
+        "finished",
+      ];
 
       stream.send = sendMock;
-      streamer.once();
-      expect(sendMock).toBeCalledTimes(1);
 
-      streamer.once();
-      expect(sendMock).toBeCalledTimes(1);
-    });
-  });
+      status.forEach((kind) => {
+        streamer["status"] = kind;
+        streamer["backStart"]();
 
-  describe("forceStart function", () => {
-    test("Always execute the send function of stream whenever not in 'started' status", () => {
-      const sendMock = jest.fn();
-      stream.send = sendMock;
-
-      streamer.forceStart();
-      expect(sendMock).toBeCalledTimes(1);
-      expect(sendMock).toHaveBeenLastCalledWith("request");
-
-      streamer.cancel("Test");
-      expect(sendMock).toBeCalledTimes(2);
-      expect(sendMock).toHaveBeenLastCalledWith("cancel", "Test");
-
-      streamer.forceStart();
-      expect(sendMock).toBeCalledTimes(3);
-      expect(sendMock).toHaveBeenLastCalledWith("request");
+        if (kind === "started") {
+          expect(sendMock).toBeCalledTimes(1);
+          sendMock.mockReset();
+        } else {
+          expect(sendMock).not.toBeCalled();
+        }
+      });
     });
   });
 
@@ -160,29 +121,6 @@ describe("StreamerClass Tests", () => {
 
       expect(errorMock).not.toBeCalled();
       expect(streamer["status"]).not.toEqual("error");
-    });
-  });
-
-  describe("finish function", () => {
-    test("Can finish the streamer", () => {
-      const listenerMock: jest.Mock = jest.fn();
-
-      streamer.addEventListener("finished", listenerMock);
-      streamer["changeStatus"]("started");
-      streamer.finish();
-
-      expect(listenerMock).toBeCalled();
-      expect(streamer["status"]).toEqual("finished");
-    });
-
-    test("Can finish only when 'started'", () => {
-      const doneMock = jest.fn();
-
-      stream.send = doneMock;
-      streamer.finish();
-
-      expect(doneMock).not.toBeCalled();
-      expect(streamer["status"]).not.toEqual("finished");
     });
   });
 });
