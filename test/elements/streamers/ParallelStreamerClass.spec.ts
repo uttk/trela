@@ -2,7 +2,7 @@ import { StoreClass } from "../../../src/elements/StoreClass";
 import { createAffecters } from "../../../src/utils/createAffecters";
 import { StreamerManagerClass } from "../../../src/managers/StreamerManagerClass";
 import { ParallelStreamerClass } from "../../../src/elements/streamers/ParallelStreamerClass";
-import { Streamer } from "../../../src/types";
+import { Streamer, StreamerStatus } from "../../../src/types";
 
 describe("ParallelStreamerClass Tests", () => {
   const initState = 0;
@@ -25,111 +25,67 @@ describe("ParallelStreamerClass Tests", () => {
     streamer = new ParallelStreamerClass(childStreamers, store);
   });
 
-  describe("addEventListener function", () => {
-    test("Can be notified of events", () => {
-      const eventMock = jest.fn();
+  describe("backStart function", () => {
+    let startMocks: jest.Mock[];
 
-      streamer.addEventListener("error", eventMock);
-      streamer.addEventListener("cancel", eventMock);
-      streamer.addEventListener("started", eventMock);
-      streamer.addEventListener("finished", eventMock);
+    beforeEach(() => {
+      startMocks = [];
 
-      streamer["changeStatus"]("error");
-      expect(eventMock).toBeCalledTimes(1);
-
-      streamer["changeStatus"]("cancel");
-      expect(eventMock).toBeCalledTimes(2);
-
-      streamer["changeStatus"]("started");
-      expect(eventMock).toBeCalledTimes(3);
-
-      streamer["changeStatus"]("finished");
-      expect(eventMock).toBeCalledTimes(4);
-    });
-
-    test("Can stop event listening", () => {
-      const eventMock = jest.fn();
-
-      streamer.addEventListener("error", eventMock)();
-      streamer["changeStatus"]("error");
-      expect(eventMock).not.toBeCalled();
-
-      streamer.addEventListener("cancel", eventMock)();
-      streamer["changeStatus"]("cancel");
-      expect(eventMock).not.toBeCalled();
-
-      streamer.addEventListener("started", eventMock)();
-      streamer["changeStatus"]("started");
-      expect(eventMock).not.toBeCalled();
-
-      streamer.addEventListener("finished", eventMock)();
-      streamer["changeStatus"]("finished");
-      expect(eventMock).not.toBeCalled();
-    });
-  });
-
-  describe("start function", () => {
-    test("Execute the start function of all child streamer", () => {
-      const forceStartMock = jest.fn();
-
-      childStreamers.forEach((st) => {
-        st.forceStart = forceStartMock;
+      childStreamers.forEach((child) => {
+        const mock = jest.fn(child.start.bind(child));
+        child.start = mock;
+        startMocks.push(mock);
       });
-
-      const [state, isPending] = streamer.start();
-
-      expect(streamer["status"]).toEqual("started");
-      expect(forceStartMock).toBeCalledTimes(childStreamers.length);
-      expect(state).toEqual(initState);
-      expect(isPending).toBeTruthy();
     });
 
-    test("Receive notification of all streamer completion", () => {
+    test("Execute the start function of all child streamers", () => {
+      streamer["status"] = "started";
+      streamer["backStart"]();
+      startMocks.forEach((mock) => expect(mock).toBeCalled());
+    });
+
+    test("Receive notification of all streamers completion", () => {
       const compliteMock = jest.fn();
 
       streamer.addEventListener("finished", compliteMock);
-      streamer.start();
-      childStreamers.forEach((s) => s.finish());
+
+      const exec = () => {
+        streamer["status"] = "started";
+        streamer["backStart"]();
+        childStreamers.forEach((s) => s.finish());
+      };
+
+      exec();
       expect(compliteMock).toBeCalledTimes(1);
+      expect(streamer["status"]).toBe("finished");
 
-      streamer["status"] = "none";
-      streamer.start();
-      childStreamers.forEach((s) => s.finish());
+      exec();
       expect(compliteMock).toBeCalledTimes(2);
+      expect(streamer["status"]).toBe("finished");
     });
 
-    test("Execute the start function of stream only once", () => {
-      const startEventMocks: jest.Mock[] = [];
+    test("Execute all child streamers' start function when the streamer status is 'started'", () => {
+      const status: StreamerStatus[] = [
+        "none",
+        "error",
+        "cancel",
+        "started",
+        "finished",
+      ];
 
-      childStreamers.forEach((st) => {
-        const mock = jest.fn();
-        st.addEventListener("started", mock);
-        startEventMocks.push(mock);
+      status.forEach((state) => {
+        streamer["status"] = state;
+        streamer["backStart"]();
+
+        if (state === "started") {
+          startMocks.forEach((mock) => {
+            expect(mock).toBeCalled();
+            mock.mockReset();
+          });
+        } else {
+          startMocks.forEach((mock) => expect(mock).not.toBeCalled());
+        }
       });
-
-      streamer.start();
-      startEventMocks.forEach((mock) => expect(mock).toBeCalledTimes(1));
-
-      streamer.start();
-      startEventMocks.forEach((mock) => expect(mock).toBeCalledTimes(1));
-    });
-  });
-
-  describe("forceStart function", () => {
-    test("Always execute the forceStart function of all streamer whenever not in 'started' status", () => {
-      const forceStartMock = jest.fn();
-      const len = childStreamers.length;
-
-      childStreamers.forEach((st) => {
-        st.forceStart = forceStartMock;
-      });
-
-      streamer.forceStart();
-      expect(forceStartMock).toBeCalledTimes(len);
-
-      streamer.cancel();
-      streamer.forceStart();
-      expect(forceStartMock).toBeCalledTimes(len * 2);
     });
   });
 
@@ -200,28 +156,6 @@ describe("ParallelStreamerClass Tests", () => {
 
       expect(errorMock).not.toBeCalled();
       expect(streamer["status"]).not.toEqual("error");
-    });
-  });
-
-  describe("finish function", () => {
-    test("Can finish the streamer", () => {
-      const listenerMock: jest.Mock = jest.fn();
-
-      streamer.addEventListener("finished", listenerMock);
-      streamer.start();
-      streamer.finish();
-
-      expect(listenerMock).toBeCalled();
-      expect(streamer["status"]).toEqual("finished");
-    });
-
-    test("Can finish only when 'started'", () => {
-      const eventMock = jest.fn();
-
-      streamer.addEventListener("finished", eventMock);
-      streamer.finish();
-
-      expect(eventMock).not.toBeCalled();
     });
   });
 });
