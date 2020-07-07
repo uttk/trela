@@ -1,44 +1,34 @@
-export interface Effect {
-  type: "request" | "resolve" | "done" | "cancel" | "error";
-  payload: any;
-  request: string;
-}
-
-export interface ActionBase {
-  type: string;
-  payload: any;
+export interface Effect<A extends ApisBase, AK extends keyof A> {
+  type: EffectTypes;
+  request: AK;
+  payload: Parameters<A[AK]>;
 }
 
 export interface ApisBase {
   [key: string]: (...args: any) => Promise<any>;
 }
 
-export interface Stream {
+export interface Dispacher {
   readonly id: string;
 
   onComplite(callback: CompliteFunc): () => void;
-  send(type: Effect["type"], payload?: any): void;
-  setAffecter(type: string, affecter: Affecter): void;
+  dispatch(type: EffectTypes, payload?: any): void;
 }
 
-export interface Store<S, A extends ApisBase> {
-  init(): void;
-  getState(): S;
-  getOptions(): TrelaOptions<S, A>;
-  subscribe(callback: Subscriber<S>): () => void;
-  dispatch(action: CreateAction<keyof A, A>): void;
-}
-
-export interface Streamer<S> {
+export interface Flow<S> {
   readonly id: string;
+  status: FlowStatus;
 
+  getState: () => S;
+}
+
+export interface FlowMethods<S> {
   start(): void;
   once(): [S, boolean];
-  error(error: Error): void;
-  finish(payload?: any): void;
   cancel(payload?: any): void;
+  error(payload: Error): void;
+  finish(payload?: any): void;
   forceStart(cancel?: boolean, payload?: any): void;
-  addEventListener(status: StreamerStatus, cb: Listener): () => void;
 }
 
 export interface Dependency {
@@ -47,93 +37,53 @@ export interface Dependency {
   didMount: boolean;
   parents: Dependency[];
   selectors: Selector<any, any>[];
-  updateComponentView: () => void;
 
-  bookUpdate(id: string): void;
-  canUpdate(id: string): boolean;
-  isListenState(state: any): boolean;
-  isParent(dependency: Dependency): boolean;
-}
-
-export interface StreamerManager<S> {
-  createStreamer(request: string, payload: any): Streamer<S>;
-  createSeriesStreamer(streamers: Streamer<S>[]): Streamer<S>;
-  createParallelStreamer(streamers: Streamer<S>[]): Streamer<S>;
-}
-
-export interface DependencyManager {
-  deleteDependency(dependency: Dependency): void;
-  updateDependency(dependency: Dependency): void;
-  registerDependency(dependency: Dependency): void;
-  createDependency(updateView: () => void): Dependency;
-  tryComponentUpdate(isUpdate: (dependency: Dependency) => boolean): void;
-}
-
-export interface TrelaOptions<S, A extends ApisBase> {
-  apis?: A;
-  affecters?: (store: Store<S, A>) => Partial<Affecters>;
-
-  initState: S;
-  reducer: TrelaReducer<S, A>;
+  init(): void;
+  updateComponentView(): void;
 }
 
 export interface TrelaApis<S, A extends ApisBase> {
   apis: WrapApis<S, A>;
   getState<R>(selector: Selector<S, R>): R;
-  all: (streamers: Streamer<S>[]) => Streamer<S>;
-  steps: (streamers: Streamer<S>[]) => Streamer<S>;
+  all: (flows: Flow<S>[]) => Flow<S>;
+  steps: (flows: Flow<S>[]) => Flow<S>;
 }
 
 export interface TrelaContextValue<S, A extends ApisBase> {
-  store: Store<S, A>;
-  streamerMg: StreamerManager<S>;
-  dependencyMg: DependencyManager;
+  apis: A;
+  store: S;
+  flows: Flow<S>[];
+  affecters: Affecters<Effect<A, keyof A>>;
+  dependencies: Map<Dependency["id"], Dependency>;
 }
 
-type Listener = (payload?: any) => void;
+export type Affecter<E extends Effect<any, any>> = (
+  effect: E,
+  next: (effect: E) => void,
+  done: CompliteFunc
+) => void;
 
-type ResolveReturnType<F> = F extends (...args: any[]) => infer R
+export type Affecters<E extends Effect<any, any>> = Record<
+  EffectTypes,
+  Affecter<E>
+>;
+
+export type Selector<S, R> = (state: S) => [R] | [R, boolean];
+
+export type WrapApis<S, A extends ApisBase> = {
+  [K in keyof A]: (...args: Parameters<A[K]>) => Flow<S>;
+};
+
+export type CompliteFunc = (effect: DefaultEffect) => void;
+
+export type DefaultEffect = Effect<any, string>;
+
+export type ResolveReturnType<F> = F extends (...args: any[]) => infer R
   ? R extends Promise<infer PR>
     ? PR
     : R
   : never;
 
-type IsAction<T> = T extends ActionBase ? T : never;
+export type EffectTypes = "request" | "resolve" | "done" | "cancel" | "error";
 
-export type CreateAction<AK, A extends ApisBase> = AK extends keyof A
-  ? AK extends string
-    ? IsAction<{ type: AK; payload: ResolveReturnType<A[AK]> }>
-    : IsAction<{ type: AK; payload: A[AK] }>
-  : never;
-
-export type CreateActionsType<A extends ApisBase> = CreateAction<keyof A, A>;
-
-export type StreamerStatus =
-  | "none"
-  | "started"
-  | "finished"
-  | "cancel"
-  | "error";
-
-export type Subscriber<S> = (state: S) => void;
-
-export type CompliteFunc = (effect: Effect) => void;
-
-export type WrapApis<S, A extends ApisBase> = {
-  [K in keyof A]: (...args: Parameters<A[K]>) => Streamer<S>;
-};
-
-export type Selector<S, R> = (state: S) => [R] | [R, boolean];
-
-export type TrelaReducer<S, A extends ApisBase> = (
-  state: S,
-  action: CreateAction<keyof A, A>
-) => S;
-
-export type Affecter = (
-  effect: Effect,
-  next: (effect: Effect) => void,
-  done: CompliteFunc
-) => void;
-
-export type Affecters = Record<Effect["type"], Affecter>;
+export type FlowStatus = "none" | "started" | "finished" | "cancel" | "error";
