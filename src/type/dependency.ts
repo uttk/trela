@@ -1,3 +1,4 @@
+import { Flow } from "./flow";
 import { Selector } from "./util";
 
 export interface Dependency {
@@ -9,6 +10,7 @@ export interface Dependency {
 
   init(): void;
   updateComponentView(): void;
+  bookUpdate(id: Flow<any, any>["id"]): void;
   updateParents(parents: Dependency["parents"]): void;
 }
 

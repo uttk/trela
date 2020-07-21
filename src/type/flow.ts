@@ -16,7 +16,7 @@ export type FlowStatus =
 
 export interface RequestFlow<S, A extends ApisBase> extends FlowBase<S> {
   status: "request";
-  payload: Flow<S, A> | Flow<S, A>[];
+  payload: CreateFlowRequest<A, keyof A> | Flow<S, A>[];
 }
 
 export interface ResolveFlow<S, A extends ApisBase> extends FlowBase<S> {
@@ -41,7 +41,7 @@ export interface ErrorFlow<S> extends FlowBase<S> {
 
 export interface Flows<S, A extends ApisBase> {
   request: RequestFlow<S, A>;
-  resolve: RequestFlow<S, A>;
+  resolve: ResolveFlow<S, A>;
   finished: FinishFlow<S, A>;
   cancel: CancelFlow<S>;
   error: ErrorFlow<S>;
@@ -62,12 +62,10 @@ export type FlowWrapApis<S, A extends ApisBase> = {
 };
 
 export interface FlowManager<S, A extends ApisBase> {
-  createFlowApi(flow: Flow<S, A>): FlowApi<S>;
+  createFlowApi(flow: Flow<S, A>, dependency: Dependency): FlowApi<S>;
 
-  createSeriesFlow(flowList: Flow<S, A>[], dependency: Dependency): Flow<S, A>;
+  createSeriesFlow(flowList: Flow<S, A>[]): Flow<S, A>;
+  createParallelFlow(flowList: Flow<S, A>[]): Flow<S, A>;
   // eslint-disable-next-line prettier/prettier
-  createParallelFlow(flowList: Flow<S, A>[], dependency: Dependency): Flow<S, A>;
-  // eslint-disable-next-line prettier/prettier
-  createFlow<AK extends keyof A>(request: AK, payload: Parameters<A[AK]>, dependency: Dependency): Flow<S, A>;
-
+  createFlow<AK extends keyof A>(request: AK, payload: Parameters<A[AK]>): Flow<S, A>;
 }
