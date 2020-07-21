@@ -9,31 +9,34 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
   const { apis, flowMg } = context;
 
   return {
-    apis: Object.keys(apis).reduce<FlowWrapApis<S, A>>((apis, apiName) => {
+    apis: Object.keys(apis).reduce<FlowWrapApis<S, A>>((wrapApis, apiName) => {
       return {
-        ...apis,
-        [apiName]: (...args: Parameters<A[keyof A]>) => {
-          const flow = flowMg.createFlow(apiName, args, dependency);
+        ...wrapApis,
 
-          return flowMg.createFlowApi(flow);
+        [apiName]: (...args: Parameters<A[keyof A]>) => {
+          const flow = flowMg.createFlow(apiName, args);
+
+          return flowMg.createFlowApi(flow, dependency);
         },
       };
     }, {} as FlowWrapApis<S, A>),
 
     steps: (flowList) => {
-      const flow = flowMg.createSeriesFlow(flowList, dependency);
+      const flow = flowMg.createSeriesFlow(flowList);
 
-      return flowMg.createFlowApi(flow);
+      return flowMg.createFlowApi(flow, dependency);
     },
 
     all: (flowList) => {
-      const flow = flowMg.createParallelFlow(flowList, dependency);
+      const flow = flowMg.createParallelFlow(flowList);
 
-      return flowMg.createFlowApi(flow);
+      return flowMg.createFlowApi(flow, dependency);
     },
 
     getState: <R>(selector: Selector<S, R>): R => {
       const [state] = selector(context.store.getState());
+
+      dependency.selector.push(selector);
 
       return state;
     },
