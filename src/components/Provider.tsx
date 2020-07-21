@@ -1,6 +1,6 @@
 import React from "react";
 import { TrelaContext } from "../context";
-import { TrelaContextValue } from "../types";
+import { TrelaContextValue } from "../type";
 
 export const TrelaProvider: React.FC<{
   value: TrelaContextValue<any, any>;
