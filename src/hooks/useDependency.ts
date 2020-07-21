@@ -1,37 +1,25 @@
 import { useMemo, useState, useEffect } from "react";
-import { createDependency } from "../util/createDependency";
-import { Dependency } from "../types";
+import { ApisBase, Dependency, TrelaContextValue } from "../type";
 
-export const useDependency = (
-  dependencies: Map<Dependency["id"], Dependency>
+export const useDependency = <S, A extends ApisBase>(
+  context: TrelaContextValue<S, A>
 ): Dependency => {
+  const { dependencyMg } = context;
+
   const [, forceUpdate] = useState({});
   const dependency = useMemo(() => {
-    return createDependency(() => forceUpdate({}));
+    return dependencyMg.createDependency(() => forceUpdate({}));
   }, []);
 
-  if (!dependencies.has(dependency.id)) {
-    const allDepdendencies = [...dependencies.values()];
-    const parents = allDepdendencies.filter((dep) => !dep.didMount);
-
-    dependency.parents = parents;
-  }
-
-  dependency.init();
-  dependencies.set(dependency.id, dependency);
+  dependencyMg.registerDependency(dependency);
 
   useEffect(() => {
-    if (dependencies.has(dependency.id)) {
-      dependency.parents = dependency.parents.filter((p) => !p.didMount);
-    }
-
-    dependency.didMount = true;
-    dependencies.set(dependency.id, dependency);
+    dependencyMg.updateDependency(dependency);
 
     return () => {
-      dependencies.delete(dependency.id);
+      dependencyMg.deleteDependency(dependency);
     };
-  });
+  }, []);
 
   return dependency;
 };

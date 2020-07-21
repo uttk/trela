@@ -1,54 +1,39 @@
 import { useContext } from "react";
 import { TrelaContext } from "../context";
 import { useDependency } from "./useDependency";
-import { createFlow } from "../util/createFlow";
-import { createDispacher } from "../util/createDispacher";
-import { affectDispachFactory } from "../util/affectDispachFactory";
-import { ApisBase, Selector, TrelaApis, Flow, WrapApis } from "../types";
+import { ApisBase, Selector, TrelaApi, FlowWrapApis } from "../type";
 
-export const useTrela = <S, A extends ApisBase>(): TrelaApis<S, A> => {
+export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
   const context = useContext(TrelaContext);
-  const { apis } = context;
-  const dependency = useDependency(context.dependencies);
+  const dependency = useDependency(context);
+  const { apis, flowMg } = context;
 
   return {
-    apis: Object.keys(apis || {}).reduce<WrapApis<S, A>>(
-      (wrapApis, request) => {
-        return {
-          ...wrapApis,
+    apis: Object.keys(apis).reduce<FlowWrapApis<S, A>>((apis, apiName) => {
+      return {
+        ...apis,
+        [apiName]: (...args: Parameters<A[keyof A]>) => {
+          const flow = flowMg.createFlow(apiName, args, dependency);
 
-          [request]: (...payload) => {
-            const id = JSON.stringify(payload);
-            const createDispach = affectDispachFactory(request, payload);
-            const dispacher = createDispacher(id, createDispach);
+          return flowMg.createFlowApi(flow);
+        },
+      };
+    }, {} as FlowWrapApis<S, A>),
 
-            return createFlow(context, dispacher);
-          },
-        };
-      },
-      {} as WrapApis<S, A>
-    ),
+    steps: (flowList) => {
+      const flow = flowMg.createSeriesFlow(flowList, dependency);
 
-    all: (flows: Flow<S>[]) => {
-      const id = `[${flows.map((flow) => flow.id).join("")}]`;
-      const createDispach = (() => void 0) as any;
-      const dispacher = createDispacher(id, createDispach);
-
-      return createFlow(context, dispacher);
+      return flowMg.createFlowApi(flow);
     },
 
-    steps: (flows: Flow<S>[]) => {
-      const id = `<${flows.map((flow) => flow.id).join("")}>`;
-      const createDispach = (() => void 0) as any;
-      const dispacher = createDispacher(id, createDispach);
+    all: (flowList) => {
+      const flow = flowMg.createParallelFlow(flowList, dependency);
 
-      return createFlow(context, dispacher);
+      return flowMg.createFlowApi(flow);
     },
 
     getState: <R>(selector: Selector<S, R>): R => {
-      const [state] = selector(context.store);
-
-      dependency.selectors.push(selector);
+      const [state] = selector(context.store.getState());
 
       return state;
     },
