@@ -2,14 +2,14 @@ import { Flow } from "./flow";
 import { Selector } from "./util";
 
 export interface Dependency {
-  readonly id: string;
+  readonly id: number;
+  readonly updateComponentView: () => void;
 
   didMount: boolean;
-  selector: Selector<any, any>[];
+  selectors: Set<Selector<any, any>>;
   parents: Map<Dependency["id"], Dependency>;
 
   init(): void;
-  updateComponentView(): void;
   bookUpdate(id: Flow<any, any>["id"]): void;
   updateParents(parents: Dependency["parents"]): void;
 }
