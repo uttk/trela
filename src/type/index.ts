@@ -1,5 +1,5 @@
 import { Store } from "./store";
-import { ApisBase, Reducer, Selector } from "./util";
+import { Reducer, ApisBase, Selector, CreateAction } from "./util";
 import { Dependency, DependencyManager } from "./dependency";
 import {
   Flow,
@@ -41,6 +41,7 @@ export interface TrelaApi<S, A extends ApisBase> {
 export {
   Flow,
   Store,
+  Reducer,
   FlowApi,
   ApisBase,
   Selector,
@@ -49,4 +50,5 @@ export {
   FlowRequest,
   FlowManager,
   FlowWrapApis,
+  CreateAction,
 };
