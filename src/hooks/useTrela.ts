@@ -36,7 +36,7 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
     getState: <R>(selector: Selector<S, R>): R => {
       const [state] = selector(context.store.getState());
 
-      dependency.selector.push(selector);
+      dependency.selectors.add(selector);
 
       return state;
     },
