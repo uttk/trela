@@ -13,7 +13,6 @@ import {
 export interface TrelaContextValue<S, A extends ApisBase> {
   readonly isDefault?: boolean;
 
-  apis: A;
   store: Store<S, A>;
   flowMg: FlowManager<S, A>;
   dependencyMg: DependencyManager;

@@ -9,6 +9,7 @@ import {
 export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
   private apis: A;
   private state: S;
+  private apiKeys: Array<keyof A>;
   private reducer: Reducer<S, A>;
   private listeners: Set<(state: S) => void> = new Set();
 
@@ -16,6 +17,11 @@ export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
     this.apis = options.apis;
     this.reducer = options.reducer;
     this.state = options.initState;
+    this.apiKeys = Object.keys(options.apis);
+  }
+
+  getApiKeys(): Readonly<Array<keyof A>> {
+    return this.apiKeys;
   }
 
   getState(): S {
@@ -37,7 +43,7 @@ export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
     return () => this.listeners.delete(callback);
   }
 
-  dispatch<AK extends keyof A>(action: CreateAction<A, AK>): S {
+  dispatch<AK extends keyof A>(action: CreateAction<A, AK>): void {
     this.state = this.reducer(this.state, action);
   }
 }

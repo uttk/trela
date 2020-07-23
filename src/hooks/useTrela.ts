@@ -6,31 +6,34 @@ import { ApisBase, Selector, TrelaApi, FlowWrapApis } from "../type";
 export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
   const context = useContext(TrelaContext);
   const dependency = useDependency(context);
-  const { apis, flowMg } = context;
+  const { store, flowMg } = context;
 
   return {
-    apis: Object.keys(apis).reduce<FlowWrapApis<S, A>>((wrapApis, apiName) => {
+    apis: store.getApiKeys().reduce<FlowWrapApis<S, A>>((wrapApis, apiName) => {
       return {
         ...wrapApis,
 
         [apiName]: (...args: Parameters<A[keyof A]>) => {
-          const flow = flowMg.createFlow(apiName, args);
-
-          return flowMg.createFlowApi(flow, dependency);
+          return flowMg.createFlowApi(
+            flowMg.createFlow(apiName, args),
+            dependency
+          );
         },
       };
     }, {} as FlowWrapApis<S, A>),
 
     steps: (flowList) => {
-      const flow = flowMg.createSeriesFlow(flowList);
-
-      return flowMg.createFlowApi(flow, dependency);
+      return flowMg.createFlowApi(
+        flowMg.createSeriesFlow(flowList),
+        dependency
+      );
     },
 
     all: (flowList) => {
-      const flow = flowMg.createParallelFlow(flowList);
-
-      return flowMg.createFlowApi(flow, dependency);
+      return flowMg.createFlowApi(
+        flowMg.createParallelFlow(flowList),
+        dependency
+      );
     },
 
     getState: <R>(selector: Selector<S, R>): R => {
