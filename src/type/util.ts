@@ -18,9 +18,9 @@ export type ResolvePromise<A extends ApisBase[string]> = A extends (
   ? T
   : never;
 
-export type CreateFlowRequest<A extends ApisBase, AK extends keyof A> = {
+export type Selector<S, R> = (state: S) => [R] | [R, boolean];
+
+export type CreateApiRequest<A extends ApisBase, AK extends keyof A> = {
   request: AK;
   payload: Parameters<A[AK]>;
 };
-
-export type Selector<S, R> = (state: S) => [R] | [R, boolean];

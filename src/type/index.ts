@@ -3,18 +3,12 @@ import { ApisBase, Reducer, Selector } from "./util";
 import { Dependency, DependencyManager } from "./dependency";
 import {
   Flow,
-  Flows,
+  Affect,
   FlowApi,
   FlowStatus,
   FlowManager,
   FlowWrapApis,
 } from "./flow";
-
-type Affect<S, A extends ApisBase, FS extends FlowStatus> = (
-  payload: Flows<S, A>[FS],
-  next: (flow: Flow<S, A>) => void,
-  done: (flow: Flow<S, A>) => void
-) => void;
 
 export interface TrelaContextValue<S, A extends ApisBase> {
   readonly isDefault?: boolean;
