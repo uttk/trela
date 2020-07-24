@@ -1,6 +1,12 @@
 import { Store } from "./store";
-import { Reducer, ApisBase, Selector, CreateAction } from "./util";
 import { Dependency, DependencyManager } from "./dependency";
+import {
+  Reducer,
+  ApisBase,
+  Selector,
+  CreateAction,
+  CreateActionsType,
+} from "./util";
 import {
   Flow,
   FlowApi,
@@ -53,5 +59,6 @@ export {
   FlowManager,
   FlowWrapApis,
   CreateAction,
+  CreateActionsType,
   DependencyManager,
 };
