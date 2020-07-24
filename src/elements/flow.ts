@@ -37,12 +37,9 @@ export class FlowClass<S, A extends ApisBase> implements Flow<S, A> {
     return () => callbacks.delete(callback);
   }
 
-  once = () => {
-    if (this.status !== "none") return;
-
-    this.changeStatus("started");
-    this.request(this);
-  };
+  clearCallbacks() {
+    this.callbacks.clear();
+  }
 
   start = () => {
     if (this.status === "started") return;
@@ -51,20 +48,11 @@ export class FlowClass<S, A extends ApisBase> implements Flow<S, A> {
     this.request(this);
   };
 
-  forceStart = () => {
-    this.cancel();
-    this.start();
-  };
-
   cancel = () => {
-    if (this.status !== "started") return;
-
     this.changeStatus("cancel");
   };
 
   error = (payload: Error) => {
-    if (this.status !== "started") return;
-
     this.currentError = payload;
     this.changeStatus("error");
   };

@@ -10,11 +10,9 @@ export interface Flow<S, A extends ApisBase> {
   status: FlowStatus;
 
   getStore(): Store<S, A>;
-  once(): void;
   start(): void;
   cancel(): void;
   complete(): void;
-  forceStart(): void;
   error(error: Error): void;
   addEventCallback(type: FlowStatus, callback: () => void): () => void;
 }

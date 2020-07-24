@@ -76,7 +76,9 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
       once: () => {
         this.setup(flow, dependency);
 
-        flow.once();
+        if (flow.status === "none") {
+          flow.start();
+        }
 
         return [flow.getStore().getState(), flow.status === "started"];
       },
