@@ -27,6 +27,10 @@ export interface ContextOptions<S, A extends ApisBase> {
   apis: A;
   initState: S;
   reducer: Reducer<S, A>;
+  errorHandle?: (
+    state: S,
+    action: { type: keyof A; error: Error }
+  ) => S | Error;
 }
 
 export interface TrelaApi<S, A extends ApisBase> {
