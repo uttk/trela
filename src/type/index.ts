@@ -26,7 +26,6 @@ export type Setup<S, A extends ApisBase> = (
 export interface ContextOptions<S, A extends ApisBase> {
   apis: A;
   initState: S;
-  setup: Setup<S, A>;
   reducer: Reducer<S, A>;
 }
 
@@ -50,4 +49,5 @@ export {
   FlowManager,
   FlowWrapApis,
   CreateAction,
+  DependencyManager,
 };
