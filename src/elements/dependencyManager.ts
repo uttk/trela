@@ -1,14 +1,32 @@
-import { DependencyManager, Dependency } from "../type/dependency";
 import { DependencyClass } from "./dependency";
+import { Flow, Dependency, DependencyManager } from "../type";
 
 export class DependencyManagerClass implements DependencyManager {
   private counter: number = 0;
   private dependencies: Map<Dependency["id"], Dependency> = new Map();
 
-  private filterParents(
+  private filterWillMountDependencies(
     entries: Array<[Dependency["id"], Dependency]>
   ): Dependency["parents"] {
     return new Map(entries.filter(([, dep]) => !dep.didMount));
+  }
+
+  tryUpdateView(flowId: Flow<any, any>["id"]) {
+    [...this.dependencies.values()]
+      .reduce<Dependency[]>((list, dep) => {
+        if (dep.parents.size) {
+          let len = list.length;
+
+          while (len--) {
+            if (dep.isParent(list[len].id)) {
+              return list;
+            }
+          }
+        }
+
+        return dep.canUpdate(flowId) ? list.concat(dep) : list;
+      }, [])
+      .forEach((dep) => dep.updateComponentView());
   }
 
   createDependency(updateComponentView: () => void): Dependency {
@@ -18,7 +36,7 @@ export class DependencyManagerClass implements DependencyManager {
   registerDependency(dependency: Dependency): void {
     if (!this.dependencies.has(dependency.id)) {
       dependency.updateParents(
-        this.filterParents([...this.dependencies.entries()])
+        this.filterWillMountDependencies([...this.dependencies.entries()])
       );
     }
 
@@ -29,7 +47,7 @@ export class DependencyManagerClass implements DependencyManager {
   updateDependency(dependency: Dependency): void {
     if (this.dependencies.has(dependency.id)) {
       dependency.updateParents(
-        this.filterParents([...dependency.parents.entries()])
+        this.filterWillMountDependencies([...dependency.parents.entries()])
       );
     }
 

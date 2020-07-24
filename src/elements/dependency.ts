@@ -1,7 +1,7 @@
-import { Dependency, Selector } from "../type";
+import { Flow, Selector, Dependency } from "../type";
 
 export class DependencyClass implements Dependency {
-  private bookingUpdateIds: Array<number> = [];
+  private bookingFlowIds: Array<Flow<any, any>["id"]> = [];
 
   readonly id: Dependency["id"];
   readonly updateComponentView: () => void;
@@ -21,10 +21,26 @@ export class DependencyClass implements Dependency {
   }
 
   bookUpdate(id: number): void {
-    this.bookingUpdateIds.push(id);
+    this.bookingFlowIds.push(id);
   }
 
   updateParents(parents: Map<Dependency["id"], Dependency>): void {
     this.parents = parents;
+  }
+
+  isParent(dependencyId: Dependency["id"]): boolean {
+    return this.parents.has(dependencyId);
+  }
+
+  hasFlowId(flowId: Flow<any, any>["id"]): boolean {
+    return this.bookingFlowIds.indexOf(flowId) !== -1;
+  }
+
+  canUpdate(flowId: Flow<any, any>["id"]): boolean {
+    if (this.hasFlowId(flowId)) return false;
+
+    return [...this.parents.values()].reduce<boolean>((pre, dep) => {
+      return pre ? pre : dep.canUpdate(flowId);
+    }, false);
   }
 }

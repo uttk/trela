@@ -10,11 +10,15 @@ export interface Dependency {
   parents: Map<Dependency["id"], Dependency>;
 
   init(): void;
+  isParent(id: Dependency["id"]): boolean;
   bookUpdate(id: Flow<any, any>["id"]): void;
+  hasFlowId(flowId: Flow<any, any>["id"]): boolean;
+  canUpdate(flowId: Flow<any, any>["id"]): boolean;
   updateParents(parents: Dependency["parents"]): void;
 }
 
 export interface DependencyManager {
+  tryUpdateView(flowId: Flow<any, any>["id"]): void;
   createDependency(updateComponentView: () => void): Dependency;
   registerDependency(dependency: Dependency): void;
   updateDependency(dependency: Dependency): void;
