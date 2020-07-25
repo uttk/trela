@@ -30,6 +30,8 @@
     "types"
   ],
   "scripts": {
+    "coverage:show": "yarn coverage --watch & http-server ./coverage/lcov-report",
+    "coverage": "jest --color --no-cache --coverage",
     "test": "jest --color --no-cache",
     "build": "rollup --config"
   },
@@ -44,6 +46,7 @@
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-react": "^7.19.0",
+    "http-server": "^0.12.3",
     "jest": "^25.2.7",
     "prettier": "^2.0.4",
     "react": "^16.13.1",
