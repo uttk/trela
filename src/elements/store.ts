@@ -43,7 +43,7 @@ export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
     return () => this.listeners.delete(callback);
   }
 
-  dispatch<AK extends keyof A>(action: CreateAction<A, AK>): void {
+  dispatch<AK extends keyof A>(action: CreateAction<AK, A>): void {
     this.state = this.reducer(this.state, action);
   }
 }

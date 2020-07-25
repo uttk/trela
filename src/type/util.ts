@@ -2,15 +2,17 @@ export interface ApisBase {
   [key: string]: (...args: any[]) => Promise<any>;
 }
 
-export type Reducer<S, A extends ApisBase> = <AK extends keyof A>(
+export type Reducer<S, A extends ApisBase> = (
   state: S,
-  action: CreateAction<A, AK>
+  action: CreateAction<keyof A, A>
 ) => S;
 
-export type CreateAction<A extends ApisBase, AK extends keyof A> = {
-  type: AK;
-  payload: ResolvePromise<A[AK]>;
-};
+export type CreateAction<AK, A extends ApisBase> = AK extends keyof A
+  ? {
+      type: AK;
+      payload: ResolvePromise<A[AK]>;
+    }
+  : never;
 
 export type ResolvePromise<A extends ApisBase[string]> = A extends (
   ...args: any
