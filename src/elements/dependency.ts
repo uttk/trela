@@ -37,10 +37,11 @@ export class DependencyClass implements Dependency {
   }
 
   canUpdate(flowId: Flow<any, any>["id"]): boolean {
-    if (this.hasFlowId(flowId)) return false;
+    if (!this.didMount) return false;
+    if (!this.hasFlowId(flowId)) return false;
 
     return [...this.parents.values()].reduce<boolean>((pre, dep) => {
-      return pre ? pre : dep.canUpdate(flowId);
-    }, false);
+      return pre ? !dep.canUpdate(flowId) : false;
+    }, true);
   }
 }
