@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { TrelaContext } from "../context";
 import { useDependency } from "./useDependency";
-import { ApisBase, Selector, TrelaApi, FlowWrapApis } from "../type";
+import { ApisBase, Selector, TrelaApi, FlowWrapApis, Flow } from "../type";
 
 export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
   const context = useContext(TrelaContext);
@@ -22,14 +22,24 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
       };
     }, {} as FlowWrapApis<S, A>),
 
-    steps: (flowList) => {
+    steps: (flowIds) => {
+      const flowList = flowIds.reduce<Flow<S, A>[]>((list, v) => {
+        const flow = flowMg.getFlow(v.id);
+        return flow ? list.concat(flow) : list;
+      }, []);
+
       return flowMg.createFlowApi(
         flowMg.createSeriesFlow(flowList),
         dependency
       );
     },
 
-    all: (flowList) => {
+    all: (flowIds) => {
+      const flowList = flowIds.reduce<Flow<S, A>[]>((list, v) => {
+        const flow = flowMg.getFlow(v.id);
+        return flow ? list.concat(flow) : list;
+      }, []);
+
       return flowMg.createFlowApi(
         flowMg.createParallelFlow(flowList),
         dependency

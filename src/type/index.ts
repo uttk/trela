@@ -41,8 +41,8 @@ export interface ContextOptions<S, A extends ApisBase> {
 
 export interface TrelaApi<S, A extends ApisBase> {
   apis: FlowWrapApis<S, A>;
-  all(flow: Flow<S, A>[]): FlowApi<S>;
-  steps(flow: Flow<S, A>[]): FlowApi<S>;
+  all(flow: FlowApi<S>[]): FlowApi<S>;
+  steps(flow: FlowApi<S>[]): FlowApi<S>;
   getState<R>(selector: Selector<S, R>): R;
 }
 
