@@ -1,9 +1,11 @@
 import * as React from "react";
 import { render, waitForElementToBeRemoved } from "@testing-library/react";
-import { useTrela } from "../../src/hooks/useTrela";
-import { createContextValue } from "../../src/utils/createContextValue";
-import { TrelaProvider } from "../../src/components/TrelaProvider";
-import { TrelaContextValue } from "../../src/types";
+import {
+  useTrela,
+  TrelaProvider,
+  TrelaContextValue,
+  createContextValue,
+} from "../../src/index";
 import {
   apis,
   reducer,

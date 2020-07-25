@@ -5,10 +5,12 @@ import {
   fireEvent,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
-import { useTrela } from "../../src/hooks/useTrela";
-import { createContextValue } from "../../src/utils/createContextValue";
-import { TrelaProvider } from "../../src/components/TrelaProvider";
-import { TrelaContextValue } from "../../src/types";
+import {
+  useTrela,
+  TrelaProvider,
+  createContextValue,
+  TrelaContextValue,
+} from "../../src/index";
 import {
   apis,
   sleep,
@@ -85,7 +87,7 @@ describe("Component Dependency Use Case", () => {
     const { queryByText } = render(<Root />);
 
     await waitForElementToBeRemoved(() => queryByText("App Loading"), {
-      timeout: 3000,
+      timeout: 500,
     });
 
     await waitFor(() => expect(mountCounter).toHaveBeenCalledTimes(2));
@@ -95,7 +97,7 @@ describe("Component Dependency Use Case", () => {
     const { queryByText } = render(<Root />);
 
     await waitForElementToBeRemoved(() => queryByText("Child Loading"), {
-      timeout: 3000,
+      timeout: 500,
     });
 
     await waitFor(() => expect(mountCounter).toHaveBeenCalledTimes(2));
