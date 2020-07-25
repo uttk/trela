@@ -1,4 +1,4 @@
-import { ApisBase } from "../type";
+import { ApisBase, CreateAction } from "../type";
 import { Flow } from "../type/flow";
 
 export const createApiRequest = <S, A extends ApisBase, AK extends keyof A>(
@@ -11,7 +11,10 @@ export const createApiRequest = <S, A extends ApisBase, AK extends keyof A>(
 
     api(...payload)
       .then((result) => {
-        store.dispatch({ type: request, payload: result });
+        // eslint-disable-next-line prettier/prettier
+        const action = { type: request, payload: result } as CreateAction<AK, A>;
+
+        store.dispatch(action);
         flow.complete();
       })
       .catch(flow.error);

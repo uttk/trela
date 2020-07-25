@@ -27,4 +27,4 @@ export type CreateApiRequest<A extends ApisBase, AK extends keyof A> = {
   payload: Parameters<A[AK]>;
 };
 
-export type CreateActionsType<A extends ApisBase> = CreateAction<A, keyof A>;
+export type CreateActionsType<A extends ApisBase> = CreateAction<keyof A, A>;
