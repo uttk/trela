@@ -44,6 +44,10 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
     return flow;
   }
 
+  getFlow(flowId: number): void | Flow<S, A> {
+    return this.flowCacheList.get(flowId);
+  }
+
   createSeriesFlow(flowList: Flow<S, A>[]): Flow<S, A> {
     const id = this.createId("s:" + flowList.map((f) => f.id).join(""));
 
