@@ -1,4 +1,4 @@
-const { compilerOptions } = require("./tsconfig");
+const { compilerOptions } = require("./test/tsconfig.json");
 const moduleFileExtensions = ["ts", "tsx", "js"];
 
 module.exports = {
