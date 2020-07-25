@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2015",
     "module": "CommonJS",
-    "moduleResolution": "Node",
     "lib": [
       "DOM",
       "ESNext"
@@ -16,10 +15,13 @@
     "pretty": true,
     "newLine": "lf",
     "esModuleInterop": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": "../",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
-    "./components/**/*",
-    "./e2e/**/*"
+    "**/*"
   ]
 }
