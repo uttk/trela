@@ -9,7 +9,7 @@ describe("createParallelRequest", () => {
   type StateType = typeof initState;
   type Apis = { test: () => Promise<string> };
 
-  const create = (payload: FlowClass<StateType, Apis>[]) => {
+  const createRequest = (payload: FlowClass<StateType, Apis>[]) => {
     return createParallelRequest(payload);
   };
 
@@ -24,20 +24,22 @@ describe("createParallelRequest", () => {
   });
 
   test("Return a request function for parallel", () => {
-    const request = create([]);
+    const request = createRequest([]);
 
     expect(request).toBeInstanceOf(Function);
   });
 
   test("The request function execute children flows' the start function", () => {
-    const childFlow = new FlowClass(1, store, (flow) => flow.complete());
-    const childFlow2 = new FlowClass(1, store, (flow) => flow.complete());
-    const request = createParallelRequest([childFlow, childFlow2]);
-    const parallelFlow = new FlowClass(2, store, request);
     const startMock = jest.fn();
+    const children = [1, 2].map((id) => {
+      const flow = new FlowClass(id, store, (flow) => flow.complete());
 
-    childFlow.start = startMock;
-    childFlow2.start = startMock;
+      flow.start = startMock;
+
+      return flow;
+    });
+    const request = createRequest(children);
+    const parallelFlow = new FlowClass(2, store, request);
 
     request(parallelFlow);
     expect(startMock).toBeCalledTimes(2);
@@ -50,7 +52,7 @@ describe("createParallelRequest", () => {
         childComplete.push(flow.complete)
       );
     });
-    const request = createParallelRequest(children);
+    const request = createRequest(children);
     const parallelFlow = new FlowClass(2, store, request);
     const completeMock = jest.fn();
 
@@ -71,7 +73,7 @@ describe("createParallelRequest", () => {
         else flow.complete();
       });
     });
-    const request = createParallelRequest(children);
+    const request = createRequest(children);
     const parallelFlow = new FlowClass(2, store, request);
     const errorMock = jest.fn();
 
@@ -88,7 +90,7 @@ describe("createParallelRequest", () => {
         else flow.complete();
       });
     });
-    const request = createParallelRequest(children);
+    const request = createRequest(children);
     const parallelFlow = new FlowClass(2, store, request);
     const cancelMock = jest.fn();
 
