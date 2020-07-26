@@ -29,7 +29,7 @@ describe("createParallelRequest", () => {
     expect(request).toBeInstanceOf(Function);
   });
 
-  test("The request function execute children flows' the start function", () => {
+  test("Can execute children flows' the start function", () => {
     const startMock = jest.fn();
     const children = [1, 2].map((id) => {
       const flow = new FlowClass(id, store, (flow) => flow.complete());
@@ -38,27 +38,25 @@ describe("createParallelRequest", () => {
 
       return flow;
     });
-    const request = createRequest(children);
-    const parallelFlow = new FlowClass(2, store, request);
+    const parallelFlow = new FlowClass(2, store, createRequest(children));
 
-    request(parallelFlow);
+    parallelFlow.start();
     expect(startMock).toBeCalledTimes(2);
   });
 
-  test("Execute complete function when all children flows complete", () => {
+  test("Can execute complete function when all children flows complete", () => {
     const childComplete: Array<() => void> = [];
     const children = [1, 2].map((id) => {
       return new FlowClass(id, store, (flow) =>
         childComplete.push(flow.complete)
       );
     });
-    const request = createRequest(children);
-    const parallelFlow = new FlowClass(2, store, request);
+    const parallelFlow = new FlowClass(2, store, createRequest(children));
     const completeMock = jest.fn();
 
     parallelFlow.complete = completeMock;
 
-    request(parallelFlow);
+    parallelFlow.start();
     childComplete.shift()?.(); // execute a complete of first flow
     expect(completeMock).not.toBeCalled();
 
@@ -73,13 +71,12 @@ describe("createParallelRequest", () => {
         else flow.complete();
       });
     });
-    const request = createRequest(children);
-    const parallelFlow = new FlowClass(2, store, request);
+    const parallelFlow = new FlowClass(2, store, createRequest(children));
     const errorMock = jest.fn();
 
     parallelFlow.error = errorMock;
 
-    request(parallelFlow);
+    parallelFlow.start();
     expect(errorMock).toBeCalledTimes(1);
   });
 
@@ -90,13 +87,12 @@ describe("createParallelRequest", () => {
         else flow.complete();
       });
     });
-    const request = createRequest(children);
-    const parallelFlow = new FlowClass(2, store, request);
+    const parallelFlow = new FlowClass(2, store, createRequest(children));
     const cancelMock = jest.fn();
 
     parallelFlow.cancel = cancelMock;
 
-    request(parallelFlow);
+    parallelFlow.start();
     expect(cancelMock).toBeCalledTimes(1);
   });
 });
