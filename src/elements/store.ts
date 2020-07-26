@@ -20,7 +20,7 @@ export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
     this.apiKeys = Object.keys(options.apis);
   }
 
-  getApiKeys(): Readonly<Array<keyof A>> {
+  getApiKeys(): Array<keyof A> {
     return this.apiKeys;
   }
 
@@ -33,6 +33,8 @@ export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
   }
 
   updateState(state: S): void {
+    if (this.state === state) return;
+
     this.state = state;
     this.listeners.forEach((f) => f(state));
   }
@@ -44,6 +46,6 @@ export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
   }
 
   dispatch<AK extends keyof A>(action: CreateAction<AK, A>): void {
-    this.state = this.reducer(this.state, action);
+    this.updateState(this.reducer(this.state, action));
   }
 }
