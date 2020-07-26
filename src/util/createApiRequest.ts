@@ -1,5 +1,4 @@
-import { ApisBase, CreateAction } from "../type";
-import { Flow } from "../type/flow";
+import { Flow, ApisBase, CreateAction } from "../type";
 
 export const createApiRequest = <S, A extends ApisBase, AK extends keyof A>(
   request: AK,
