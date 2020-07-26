@@ -18,14 +18,12 @@ describe("createApiRequest", () => {
 
   let apis: Apis;
   let apiMock: jest.Mock<Promise<string>, []>;
-  let reducer: jest.Mock<StateType, [StateType]>;
   let store: StoreClass<StateType, Apis>;
 
   beforeEach(() => {
     apiMock = jest.fn(async () => "test");
-    reducer = jest.fn((s) => s);
     apis = { test: apiMock };
-    store = new StoreClass({ apis, reducer, initState });
+    store = new StoreClass({ apis, reducer: (s) => s, initState });
   });
 
   test("Return a request function", () => {
