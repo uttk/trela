@@ -30,7 +30,7 @@
     "types"
   ],
   "scripts": {
-    "coverage:show": "yarn coverage --watch & http-server ./coverage/lcov-report",
+    "coverage:show": "yarn coverage & http-server ./coverage/lcov-report",
     "coverage": "jest --color --no-cache --coverage",
     "test": "jest --color --no-cache",
     "build": "rollup --config"
