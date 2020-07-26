@@ -15,8 +15,8 @@ export const createParallelRequest = <S, A extends ApisBase>(
     };
 
     flowList.forEach((flow) => {
-      flow.addEventCallback("cancel", flow.cancel);
       flow.addEventCallback("finished", allComplete);
+      flow.addEventCallback("cancel", baseFlow.cancel);
       flow.addEventCallback("error", () => baseFlow.error(flow.currentError));
 
       flow.start();
