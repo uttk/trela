@@ -1,4 +1,4 @@
-import { DependencyClass } from "../../src/elements/dependency";
+import { DependencyClass } from "@/elements/dependency";
 
 describe("DependencyClass Tests", () => {
   let dependency: DependencyClass;
