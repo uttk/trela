@@ -12,8 +12,8 @@ export class DependencyManagerClass implements DependencyManager {
   }
 
   tryUpdateView(flowId: Flow<any, any>["id"]) {
-    [...this.dependencies.values()]
-      .reduce<Dependency[]>((list, dep) => {
+    const deps = [...this.dependencies.values()].reduce<Dependency[]>(
+      (list, dep) => {
         if (dep.parents.size) {
           let len = list.length;
 
@@ -25,8 +25,11 @@ export class DependencyManagerClass implements DependencyManager {
         }
 
         return dep.canUpdate(flowId) ? list.concat(dep) : list;
-      }, [])
-      .forEach((dep) => dep.updateComponentView());
+      },
+      []
+    );
+
+    deps.forEach((dep) => dep.updateComponentView());
   }
 
   createDependency(updateComponentView: () => void): Dependency {
