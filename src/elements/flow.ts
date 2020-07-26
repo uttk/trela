@@ -32,7 +32,7 @@ export class FlowClass<S, A extends ApisBase> implements Flow<S, A> {
   addEventCallback(type: FlowStatus, callback: () => void) {
     const callbacks = this.callbacks.get(type) || new Set();
 
-    callbacks.add(callback);
+    this.callbacks.set(type, callbacks.add(callback));
 
     return () => callbacks.delete(callback);
   }
