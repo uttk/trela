@@ -1,7 +1,7 @@
-import { createApiRequest } from "@/util/createApiRequest";
-import { StoreClass } from "@/elements/store";
-import { FlowClass } from "@/elements/flow";
 import { waitFor } from "@testing-library/react";
+import { FlowClass } from "@/elements/flow";
+import { StoreClass } from "@/elements/store";
+import { createApiRequest } from "@/request/createApiRequest";
 
 describe("createApiRequest", () => {
   const initState = { test: "" };

@@ -1,6 +1,6 @@
-import { createParallelRequest } from "@/util/createParallelRequest";
-import { StoreClass } from "@/elements/store";
 import { FlowClass } from "@/elements/flow";
+import { StoreClass } from "@/elements/store";
+import { createParallelRequest } from "@/request/createParallelRequest";
 import { Store } from "@/type";
 
 describe("createParallelRequest", () => {

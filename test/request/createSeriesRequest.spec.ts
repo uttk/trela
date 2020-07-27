@@ -1,6 +1,6 @@
-import { createSeriesRequest } from "@/util/createSeriesRequest";
-import { StoreClass } from "@/elements/store";
 import { FlowClass } from "@/elements/flow";
+import { StoreClass } from "@/elements/store";
+import { createSeriesRequest } from "@/request/createSeriesRequest";
 import { Store } from "@/type";
 
 describe("createSeriesRequest", () => {
