@@ -1,10 +1,10 @@
-import * as React from "react";
 import {
   render,
   waitFor,
   fireEvent,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
+import * as React from "react";
 import {
   useTrela,
   TrelaProvider,
@@ -116,7 +116,7 @@ describe("Component Dependency Use Case", () => {
   });
 
   test("Can refetch users", async () => {
-    const { getByText, getAllByText, queryByText } = render(<Root />);
+    const { getByText, queryAllByText, queryByText } = render(<Root />);
 
     await waitForElementToBeRemoved(() => queryByText("App Loading"));
     expect(queryByText("Child Loading")).toBeNull();
@@ -129,7 +129,7 @@ describe("Component Dependency Use Case", () => {
     expect(queryByText("Child Loading")).toBeNull();
 
     await waitFor(() =>
-      expect(getAllByText(/^Example/)).toHaveLength(
+      expect(queryAllByText(/^Example/)).toHaveLength(
         responseMockData.users.length
       )
     );

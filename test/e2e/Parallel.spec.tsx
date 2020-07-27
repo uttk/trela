@@ -1,10 +1,10 @@
-import * as React from "react";
 import {
   render,
   waitFor,
   waitForElementToBeRemoved,
   fireEvent,
 } from "@testing-library/react";
+import * as React from "react";
 import {
   useTrela,
   TrelaProvider,
