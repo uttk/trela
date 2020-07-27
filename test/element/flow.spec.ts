@@ -89,21 +89,6 @@ describe("DependencyClass Tests", () => {
     });
   });
 
-  describe("clearCallbacks", () => {
-    const keys = ["cancel", "error", "finished", "none", "started"];
-
-    test("Clear setting callbacks", () => {
-      keys.forEach((key) => {
-        flow.addEventCallback(key as FlowStatus, () => void 0);
-      });
-
-      expect(flow["callbacks"].size).toBe(keys.length);
-
-      flow.clearCallbacks();
-      expect(flow["callbacks"].size).toBe(0);
-    });
-  });
-
   describe("start", () => {
     test("Execute the passed request function when flow.status is not 'started'", () => {
       flow.start();

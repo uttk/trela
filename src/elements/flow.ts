@@ -37,10 +37,6 @@ export class FlowClass<S, A extends ApisBase> implements Flow<S, A> {
     return () => callbacks.delete(callback);
   }
 
-  clearCallbacks() {
-    this.callbacks.clear();
-  }
-
   start = () => {
     if (this.status === "started") return;
 
