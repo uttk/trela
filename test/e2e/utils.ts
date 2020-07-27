@@ -58,8 +58,5 @@ export const reducer = (state: StateType, action: Actions): StateType => {
 
     case "fetchUsers":
       return { ...state, users: action.payload };
-
-    default:
-      return state;
   }
 };
