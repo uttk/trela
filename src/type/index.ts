@@ -1,12 +1,4 @@
-import { Store } from "./store";
 import { Dependency, DependencyManager } from "./dependency";
-import {
-  Reducer,
-  ApisBase,
-  Selector,
-  CreateAction,
-  CreateActionsType,
-} from "./util";
 import {
   Flow,
   FlowApi,
@@ -15,13 +7,31 @@ import {
   FlowManager,
   FlowWrapApis,
 } from "./flow";
+import { Store } from "./store";
+import {
+  Reducer,
+  ApisBase,
+  Selector,
+  CreateAction,
+  CreateActionsType,
+} from "./util";
 
 export interface TrelaContextValue<S, A extends ApisBase> {
   readonly isDefault?: boolean;
 
+  apis: A;
   store: Store<S, A>;
   flowMg: FlowManager<S, A>;
   dependencyMg: DependencyManager<S>;
+  utils: {
+    setup: Setup<S, A>;
+    createSeriesRequest(flowList: Flow<S, A>[]): FlowRequest<S, A>;
+    createParallelRequest: (flowList: Flow<S, A>[]) => FlowRequest<S, A>;
+    // eslint-disable-next-line prettier/prettier
+    createFlowApi: (flow: Flow<S, A>, setup: () => void) => FlowApi<S>;
+    // eslint-disable-next-line prettier/prettier
+    createApiRequest: <AK extends keyof A>(request: AK, payload: Parameters<A[AK]>) => FlowRequest<S, A>;
+  };
 }
 
 export type Setup<S, A extends ApisBase> = (

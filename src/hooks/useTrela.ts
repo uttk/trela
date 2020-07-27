@@ -1,53 +1,62 @@
 import { useContext } from "react";
 import { TrelaContext } from "../context";
+import {
+  ApisBase,
+  Selector,
+  TrelaApi,
+  FlowWrapApis,
+  TrelaContextValue,
+} from "../type";
 import { useDependency } from "./useDependency";
-import { ApisBase, Selector, TrelaApi, FlowWrapApis, Flow } from "../type";
 
 export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
-  const context = useContext(TrelaContext);
+  const context = useContext<TrelaContextValue<S, A>>(TrelaContext);
   const dependency = useDependency(context);
-  const { store, flowMg } = context;
+  const {
+    apis,
+    store,
+    flowMg,
+    utils: {
+      setup,
+      createFlowApi,
+      createApiRequest,
+      createSeriesRequest,
+      createParallelRequest,
+    },
+  } = context;
 
   return {
-    apis: store.getApiKeys().reduce<FlowWrapApis<S, A>>((wrapApis, apiName) => {
+    apis: Object.keys(apis).reduce<FlowWrapApis<S, A>>((wrapApis, apiName) => {
       return {
         ...wrapApis,
 
         [apiName]: (...args: Parameters<A[keyof A]>) => {
-          return flowMg.createFlowApi(
-            flowMg.createFlow(apiName, args),
-            dependency
-          );
+          const id = flowMg.createId(JSON.stringify(args));
+          const flow = flowMg.createFlow(id, createApiRequest(apiName, args));
+
+          return createFlowApi(flow, () => setup(flow, dependency));
         },
       };
     }, {} as FlowWrapApis<S, A>),
 
-    steps: (flowIds) => {
-      const flowList = flowIds.reduce<Flow<S, A>[]>((list, v) => {
-        const flow = flowMg.getFlow(v.id);
-        return flow ? list.concat(flow) : list;
-      }, []);
+    steps: (flowApis) => {
+      const flowList = flowApis.map((v) => flowMg.getFlowFromApi(v));
+      const id = flowMg.createId("s:" + flowList.map((v) => v.id).join(""));
+      const flow = flowMg.createFlow(id, createSeriesRequest(flowList));
 
-      return flowMg.createFlowApi(
-        flowMg.createSeriesFlow(flowList),
-        dependency
-      );
+      return createFlowApi(flow, () => setup(flow, dependency));
     },
 
-    all: (flowIds) => {
-      const flowList = flowIds.reduce<Flow<S, A>[]>((list, v) => {
-        const flow = flowMg.getFlow(v.id);
-        return flow ? list.concat(flow) : list;
-      }, []);
+    all: (flowApis) => {
+      const flowList = flowApis.map((v) => flowMg.getFlowFromApi(v));
+      const id = flowMg.createId("p:" + flowList.map((v) => v.id).join(""));
+      const flow = flowMg.createFlow(id, createParallelRequest(flowList));
 
-      return flowMg.createFlowApi(
-        flowMg.createParallelFlow(flowList),
-        dependency
-      );
+      return createFlowApi(flow, () => setup(flow, dependency));
     },
 
     getState: <R>(selector: Selector<S, R>): R => {
-      const [state] = selector(context.store.getState());
+      const [state] = selector(store.getState());
 
       dependency.selectors.add(selector);
 
