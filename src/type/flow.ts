@@ -37,7 +37,7 @@ export interface FlowManager<S, A extends ApisBase> {
   getFlow(flowId: Flow<S, A>["id"]): Flow<S, A> | void;
   createSeriesFlow(flowList: Flow<S, A>[]): Flow<S, A>;
   createParallelFlow(flowList: Flow<S, A>[]): Flow<S, A>;
-  createFlowApi(flow: Flow<S, A>, dependency: Dependency): FlowApi<S>;
+  createFlowApi(flow: Flow<S, A>, dependency: Dependency<S>): FlowApi<S>;
   // eslint-disable-next-line prettier/prettier
   createFlow<AK extends keyof A>(request: AK, payload: Parameters<A[AK]>): Flow<S, A>;
 }
