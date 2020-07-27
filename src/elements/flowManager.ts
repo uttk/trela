@@ -27,11 +27,11 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
   }
 
   getFlowFromApi(flowApi: FlowApi<S>): Flow<S, A> {
-    const flow = this.getFlow(flowApi.id);
+    const flow = this.flowCacheList.get(flowApi.id);
 
     if (flow) return flow;
 
-    throw new Error("");
+    throw new Error("Invalid flow id");
   }
 
   createId(key: string): number {
