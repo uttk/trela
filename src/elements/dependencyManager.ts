@@ -1,5 +1,5 @@
-import { DependencyClass } from "./dependency";
 import { Flow, Dependency, DependencyManager } from "../type";
+import { DependencyClass } from "./dependency";
 
 export class DependencyManagerClass<S> implements DependencyManager<S> {
   private counter: number = 0;
