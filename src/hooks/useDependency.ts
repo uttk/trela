@@ -3,7 +3,7 @@ import { ApisBase, Dependency, TrelaContextValue } from "../type";
 
 export const useDependency = <S, A extends ApisBase>(
   context: TrelaContextValue<S, A>
-): Dependency => {
+): Dependency<S> => {
   const { dependencyMg } = context;
 
   const [, forceUpdate] = useState({});

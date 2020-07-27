@@ -23,11 +23,11 @@ export const createContextValue = <S, A extends ApisBase>(
     });
 
     flow.addEventCallback("cancel", () => {
-      dependencyMg.tryUpdateView(flowId);
+      dependencyMg.tryUpdateView(flow);
     });
 
     flow.addEventCallback("finished", () => {
-      dependencyMg.tryUpdateView(flowId);
+      dependencyMg.tryUpdateView(flow);
     });
   };
 

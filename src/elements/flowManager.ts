@@ -73,7 +73,7 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
     });
   }
 
-  createFlowApi(flow: Flow<S, A>, dependency: Dependency): FlowApi<S> {
+  createFlowApi(flow: Flow<S, A>, dependency: Dependency<S>): FlowApi<S> {
     return {
       id: flow.id,
 

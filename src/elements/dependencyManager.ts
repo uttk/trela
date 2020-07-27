@@ -1,18 +1,20 @@
 import { DependencyClass } from "./dependency";
 import { Flow, Dependency, DependencyManager } from "../type";
 
-export class DependencyManagerClass implements DependencyManager {
+export class DependencyManagerClass<S> implements DependencyManager<S> {
   private counter: number = 0;
-  private dependencies: Map<Dependency["id"], Dependency> = new Map();
+  private dependencies: Map<Dependency<S>["id"], Dependency<S>> = new Map();
 
   private filterWillMountDependencies(
-    entries: Array<[Dependency["id"], Dependency]>
-  ): Dependency["parents"] {
+    entries: Array<[Dependency<S>["id"], Dependency<S>]>
+  ): Dependency<S>["parents"] {
     return new Map(entries.filter(([, dep]) => !dep.didMount));
   }
 
-  tryUpdateView(flowId: Flow<any, any>["id"]) {
-    const deps = [...this.dependencies.values()].reduce<Dependency[]>(
+  tryUpdateView(flow: Flow<S, any>) {
+    const flowId = flow.id;
+    const state = flow.getStore().getState();
+    const deps = [...this.dependencies.values()].reduce<Dependency<S>[]>(
       (list, dep) => {
         if (dep.parents.size) {
           let len = list.length;
@@ -24,7 +26,9 @@ export class DependencyManagerClass implements DependencyManager {
           }
         }
 
-        return dep.canUpdate(flowId) ? list.concat(dep) : list;
+        const isUpdate = dep.isListenState(state) || dep.canUpdate(flowId);
+
+        return isUpdate ? list.concat(dep) : list;
       },
       []
     );
@@ -32,11 +36,11 @@ export class DependencyManagerClass implements DependencyManager {
     deps.forEach((dep) => dep.updateComponentView());
   }
 
-  createDependency(updateComponentView: () => void): Dependency {
+  createDependency(updateComponentView: () => void): Dependency<S> {
     return new DependencyClass(++this.counter, updateComponentView);
   }
 
-  registerDependency(dependency: Dependency): void {
+  registerDependency(dependency: Dependency<S>): void {
     if (!this.dependencies.has(dependency.id)) {
       dependency.updateParents(
         this.filterWillMountDependencies([...this.dependencies.entries()])
@@ -47,7 +51,7 @@ export class DependencyManagerClass implements DependencyManager {
     this.dependencies.set(dependency.id, dependency);
   }
 
-  updateDependency(dependency: Dependency): void {
+  updateDependency(dependency: Dependency<S>): void {
     if (this.dependencies.has(dependency.id)) {
       dependency.updateParents(
         this.filterWillMountDependencies([...dependency.parents.entries()])
@@ -59,7 +63,7 @@ export class DependencyManagerClass implements DependencyManager {
     this.dependencies.set(dependency.id, dependency);
   }
 
-  deleteDependency(dependency: Dependency): void {
+  deleteDependency(dependency: Dependency<S>): void {
     this.dependencies.delete(dependency.id);
   }
 }
