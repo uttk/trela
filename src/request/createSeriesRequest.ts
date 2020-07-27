@@ -1,5 +1,4 @@
-import { ApisBase } from "../type";
-import { Flow } from "../type/flow";
+import { Flow, ApisBase } from "../type";
 
 export const createSeriesRequest = <S, A extends ApisBase>(
   flowList: Flow<S, A>[]
