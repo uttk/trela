@@ -1,5 +1,5 @@
-import { EmptyError } from "./emptyError";
 import { Flow, Store, ApisBase, FlowStatus, FlowRequest } from "../type";
+import { EmptyError } from "./emptyError";
 
 export class FlowClass<S, A extends ApisBase> implements Flow<S, A> {
   protected store: Store<S, A>;
