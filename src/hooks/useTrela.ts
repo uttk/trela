@@ -31,7 +31,7 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
         ...wrapApis,
 
         [apiName]: (...args: Parameters<A[keyof A]>) => {
-          const id = flowMg.createId(JSON.stringify(args));
+          const id = flowMg.createId(apiName + JSON.stringify(args));
           const flow = flowMg.createFlow(id, createApiRequest(apiName, args));
 
           return createFlowApi(flow, () => setup(flow, dependency));
