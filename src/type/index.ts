@@ -21,12 +21,12 @@ export interface TrelaContextValue<S, A extends ApisBase> {
 
   store: Store<S, A>;
   flowMg: FlowManager<S, A>;
-  dependencyMg: DependencyManager;
+  dependencyMg: DependencyManager<S>;
 }
 
 export type Setup<S, A extends ApisBase> = (
   flow: Flow<S, A>,
-  dependency: Dependency
+  dependency: Dependency<S>
 ) => void;
 
 export interface ContextOptions<S, A extends ApisBase> {
