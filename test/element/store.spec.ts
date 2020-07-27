@@ -21,14 +21,6 @@ describe("Store Class", () => {
     });
   });
 
-  describe("getApiKeys", () => {
-    test("Return api keys", () => {
-      const keys = Object.keys(apis).sort();
-
-      expect(store.getApiKeys().sort()).toStrictEqual(keys);
-    });
-  });
-
   describe("getState", () => {
     test("Return the latest state value", () => {
       expect(store.getState()).toEqual(initState);

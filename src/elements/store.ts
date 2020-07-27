@@ -20,10 +20,6 @@ export class StoreClass<S, A extends ApisBase> implements Store<S, A> {
     this.apiKeys = Object.keys(options.apis);
   }
 
-  getApiKeys(): Array<keyof A> {
-    return this.apiKeys;
-  }
-
   getState(): S {
     return this.state;
   }
