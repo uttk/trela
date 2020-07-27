@@ -13,7 +13,6 @@ import {
 } from "../../src/index";
 import {
   apis,
-  sleep,
   reducer,
   ApisType,
   initState,
@@ -105,15 +104,14 @@ describe("Component Dependency Use Case", () => {
   });
 
   test("Can cancel the fetchUsers action", async () => {
-    const { getByText, queryAllByText } = render(<Root />);
+    const { getByText, queryByText, queryAllByText } = render(<Root />);
     const cancelButton = getByText("Cancel");
 
-    fireEvent.click(cancelButton);
+    setTimeout(() => fireEvent.click(cancelButton));
 
-    await sleep(1000);
+    await waitForElementToBeRemoved(() => queryByText("App Loading"));
 
-    expect(getByText("App Loading")).toBeDefined();
-    expect(getByText("Child Loading")).toBeDefined();
+    expect(queryByText("Child Loading")).toBe(null);
     expect(queryAllByText(/^Example/)).toHaveLength(0);
   });
 
