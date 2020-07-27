@@ -1,5 +1,5 @@
-import { createContextValue } from "@/util/createContextValue";
 import { TrelaContextValue } from "@/type/index";
+import { createContextValue } from "@/util/createContextValue";
 
 type ContextKeys = keyof TrelaContextValue<any, any>;
 
@@ -20,7 +20,15 @@ describe("createContextValue", () => {
 
   test("The returned ContextValue has required information", () => {
     const keys = Object.keys(contextValue);
-    const expectKeys: Array<ContextKeys> = ["store", "flowMg", "dependencyMg"];
+
+    // does not include isDefault
+    const expectKeys: Array<ContextKeys> = [
+      "apis",
+      "store",
+      "utils",
+      "flowMg",
+      "dependencyMg",
+    ];
 
     expect(keys.sort()).toStrictEqual(expectKeys.sort());
   });
