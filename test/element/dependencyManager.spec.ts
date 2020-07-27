@@ -1,8 +1,12 @@
 import { DependencyClass } from "@/elements/dependency";
 import { DependencyManagerClass } from "@/elements/dependencyManager";
+import { FlowClass } from "@/elements/flow";
+import { StoreClass } from "@/elements/store";
 
 describe("DependencyManagerClass Tests", () => {
-  let dependencyMg: DependencyManagerClass;
+  let store: StoreClass<any, {}>;
+  let flow: FlowClass<any, any>;
+  let dependencyMg: DependencyManagerClass<any>;
 
   interface Options {
     fn?: () => void;
@@ -26,22 +30,24 @@ describe("DependencyManagerClass Tests", () => {
   };
 
   beforeEach(() => {
+    store = new StoreClass({ apis: {}, initState: null, reducer: (s) => s });
+    flow = new FlowClass(1, store, () => void 0);
     dependencyMg = new DependencyManagerClass();
   });
 
   describe("tryUpdateView", () => {
     test("Execute updateComponentView function of Dependency that has passed flow id", () => {
-      const flowId = 1;
+      const flowId = flow.id;
       const updateMock = jest.fn();
 
       setup([{ flowId, fn: updateMock }, { fn: updateMock }]);
 
-      dependencyMg.tryUpdateView(flowId);
+      dependencyMg.tryUpdateView(flow);
       expect(updateMock).toBeCalledTimes(1);
     });
 
     test("Child Dependency does not execute updateComponentView function when parent updates", () => {
-      const flowId = 1;
+      const flowId = flow.id;
       const updateMock = jest.fn();
 
       setup([
@@ -49,7 +55,7 @@ describe("DependencyManagerClass Tests", () => {
         { children: [{}] },
       ]);
 
-      dependencyMg.tryUpdateView(flowId);
+      dependencyMg.tryUpdateView(flow);
       expect(updateMock).not.toBeCalled();
     });
   });
