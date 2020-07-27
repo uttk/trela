@@ -19,7 +19,7 @@ export const useDependency = <S, A extends ApisBase>(
     return () => {
       dependencyMg.deleteDependency(dependency);
     };
-  }, []);
+  });
 
   return dependency;
 };
