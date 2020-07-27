@@ -33,7 +33,7 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
     return id;
   }
 
-  private returnCache(
+  private returnFlowCache(
     flowId: Flow<S, A>["id"],
     createFlow: () => Flow<S, A>
   ): Flow<S, A> {
@@ -51,7 +51,7 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
   createSeriesFlow(flowList: Flow<S, A>[]): Flow<S, A> {
     const id = this.createId("s:" + flowList.map((f) => f.id).join(""));
 
-    return this.returnCache(id, () => {
+    return this.returnFlowCache(id, () => {
       return new FlowClass(id, this.store, createSeriesRequest(flowList));
     });
   }
@@ -59,7 +59,7 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
   createParallelFlow(flowList: Flow<S, A>[]): Flow<S, A> {
     const id = this.createId("p:" + flowList.map((f) => f.id).join(""));
 
-    return this.returnCache(id, () => {
+    return this.returnFlowCache(id, () => {
       return new FlowClass(id, this.store, createParallelRequest(flowList));
     });
   }
@@ -68,7 +68,7 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
   createFlow<AK extends keyof A>(request: AK, payload: Parameters<A[AK]>): Flow<S, A> {
     const id = this.createId(JSON.stringify({ request, payload }));
 
-    return this.returnCache(id, () => {
+    return this.returnFlowCache(id, () => {
       return new FlowClass(id, this.store, createApiRequest(request, payload));
     });
   }
