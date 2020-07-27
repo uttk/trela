@@ -32,7 +32,7 @@
   "scripts": {
     "coverage:show": "yarn coverage & http-server ./coverage/lcov-report",
     "coverage": "jest --color --no-cache --coverage",
-    "test": "jest --color --no-cache",
+    "test": "jest --color",
     "build": "rollup --config"
   },
   "devDependencies": {
