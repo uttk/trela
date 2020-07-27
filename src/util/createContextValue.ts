@@ -22,8 +22,12 @@ export const createContextValue = <S, A extends ApisBase>(
       }
     });
 
+    flow.addEventCallback("cancel", () => {
+      dependencyMg.tryUpdateView(flowId);
+    });
+
     flow.addEventCallback("finished", () => {
-      dependencyMg.tryUpdateView(flow.id);
+      dependencyMg.tryUpdateView(flowId);
     });
   };
 
