@@ -30,7 +30,7 @@ export const createParallelRequest = <S, A extends ApisBase>(
         flowApi.addEventListener("cancel", wrap(flow.cancel))
       );
 
-      flowApi.start();
+      flowApi.only.start();
     });
   };
 };
