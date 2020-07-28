@@ -40,12 +40,16 @@ export const createFlowApi = <S>(
       }
     },
 
-    error: (payload: Error) => {
+    error: (payload) => {
       setup();
 
       if (flow.status === "started") {
         flow.error(payload);
       }
+    },
+
+    addEventListener: (type, callback) => {
+      return flow.addEventListener(type, callback);
     },
   };
 };
