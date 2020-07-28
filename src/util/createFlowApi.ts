@@ -5,8 +5,20 @@ export const createFlowApi = <S>(
   setup: () => void
 ): FlowApi<S> => {
   return {
+    ...createApis(flow, setup),
     id: flow.id,
+    only: createApis(flow, () => void 0),
+    addEventListener: (type, callback) => {
+      return flow.addEventListener(type, callback);
+    },
+  };
+};
 
+const createApis = <S>(
+  flow: Flow<S, any>,
+  setup: () => void
+): Omit<FlowApi<S>, "id" | "addEventListener" | "only"> => {
+  return {
     once: () => {
       setup();
 
@@ -46,10 +58,6 @@ export const createFlowApi = <S>(
       if (flow.status === "started") {
         flow.error(payload);
       }
-    },
-
-    addEventListener: (type, callback) => {
-      return flow.addEventListener(type, callback);
     },
   };
 };

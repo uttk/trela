@@ -31,6 +31,7 @@ describe("createFlowApi", () => {
       "forceStart",
       "id",
       "once",
+      "only",
       "start",
     ];
 

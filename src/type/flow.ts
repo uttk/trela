@@ -25,6 +25,13 @@ export interface FlowApi<S> {
   forceStart(): void;
   error(payload?: Error): void;
   addEventListener(type: FlowStatus, callback: () => void): () => void;
+  only: {
+    once(): [S, boolean];
+    start(): void;
+    cancel(): void;
+    forceStart(): void;
+    error(payload?: Error): void;
+  };
 }
 
 export type FlowRequest<S, A extends ApisBase> = (flow: Flow<S, A>) => void;
