@@ -35,7 +35,6 @@ export type FlowWrapApis<S, A extends ApisBase> = {
 
 export interface FlowManager<S, A extends ApisBase> {
   createId(flowId: string): number;
-  getFlowFromApi(flowApi: FlowApi<S>): Flow<S, A>;
   getFlow(flowId: Flow<S, A>["id"]): Flow<S, A> | void;
   createFlow(id: number, request: FlowRequest<S, A>): Flow<S, A>;
 }

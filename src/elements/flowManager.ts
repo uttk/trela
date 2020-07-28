@@ -1,11 +1,4 @@
-import {
-  Flow,
-  Store,
-  ApisBase,
-  FlowApi,
-  FlowManager,
-  FlowRequest,
-} from "../type";
+import { Flow, Store, ApisBase, FlowManager, FlowRequest } from "../type";
 import { FlowClass } from "./flow";
 
 // eslint-disable-next-line prettier/prettier
@@ -24,14 +17,6 @@ export class FlowManagerClass<S, A extends ApisBase> implements FlowManager<S, A
     this.flowCacheList.set(returnValue.id, returnValue);
 
     return returnValue;
-  }
-
-  getFlowFromApi(flowApi: FlowApi<S>): Flow<S, A> {
-    const flow = this.flowCacheList.get(flowApi.id);
-
-    if (flow) return flow;
-
-    throw new Error("Invalid flow id");
   }
 
   createId(key: string): number {
