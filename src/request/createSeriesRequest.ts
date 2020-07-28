@@ -1,28 +1,33 @@
-import { Flow, ApisBase } from "../type";
+import { Flow, FlowApi, ApisBase } from "../type";
 
 export const createSeriesRequest = <S, A extends ApisBase>(
-  flowList: Flow<S, A>[]
+  flowApis: FlowApi<S>[]
 ) => {
-  return (baseFlow: Flow<S, A>) => {
-    const len = flowList.length;
-    const removeCallbacks: Set<() => void> = new Set();
+  return (flow: Flow<S, A>) => {
+    const len = flowApis.length;
 
     let index = 0;
 
     const affect = () => {
-      removeCallbacks.forEach((f) => f());
-      removeCallbacks.clear();
+      if (index >= len) return flow.complete();
 
-      if (index >= len) return baseFlow.complete();
+      const flowApi = flowApis[index++];
+      const removeCallbacks: Set<() => void> = new Set();
+      const wrap = (callback: () => void) => {
+        return () => {
+          removeCallbacks.forEach((f) => f());
+          removeCallbacks.clear();
+          callback();
+        };
+      };
 
-      const flow = flowList[index++];
-      const errorHandle = () => baseFlow.error(flow.currentError);
+      removeCallbacks.add(flowApi.addEventListener("finished", () => affect()));
+      removeCallbacks.add(flowApi.addEventListener("error", wrap(flow.error)));
+      removeCallbacks.add(
+        flowApi.addEventListener("cancel", wrap(flow.cancel))
+      );
 
-      removeCallbacks.add(flow.addEventCallback("finished", affect));
-      removeCallbacks.add(flow.addEventCallback("error", errorHandle));
-      removeCallbacks.add(flow.addEventCallback("cancel", baseFlow.cancel));
-
-      flow.start();
+      flowApi.start();
     };
 
     affect();
