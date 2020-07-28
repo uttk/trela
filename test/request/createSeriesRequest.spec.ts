@@ -31,21 +31,23 @@ describe("createSeriesRequest", () => {
   });
 
   test("Can execute children flows' the start function in sequence", () => {
+    const startMocks: Array<jest.Mock<void, []>> = [];
     const children = [1, 2, 3].map((id) => {
       const flow = new FlowClass(id, store, (flow) => flow.complete());
-      const flowApi = createFlowApi(flow, () => void 0);
+      const startMock = jest.fn(flow.start);
 
-      flowApi.start = jest.fn(flowApi.start);
+      flow.start = startMock;
+      startMocks.push(startMock);
 
-      return flowApi;
+      return createFlowApi(flow, () => void 0);
     });
     const seriesFlow = new FlowClass(1111, store, createRequest(children));
 
     seriesFlow.start();
     expect(seriesFlow.status).toEqual("finished");
 
-    children.forEach((flowApi) => {
-      expect(flowApi.start).toBeCalledTimes(1);
+    startMocks.forEach((startMock) => {
+      expect(startMock).toBeCalledTimes(1);
     });
   });
 
