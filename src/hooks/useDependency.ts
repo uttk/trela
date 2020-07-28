@@ -1,15 +1,14 @@
 import { useMemo, useState, useEffect } from "react";
-import { Dependency, TrelaContextValue } from "../types";
+import { ApisBase, Dependency, TrelaContextValue } from "../type";
 
-export const useDependency = (
-  context: TrelaContextValue<any, any>
-): Dependency => {
-  const [, forceUpdate] = useState({});
+export const useDependency = <S, A extends ApisBase>(
+  context: TrelaContextValue<S, A>
+): Dependency<S> => {
   const { dependencyMg } = context;
+
+  const [, forceUpdate] = useState({});
   const dependency = useMemo(() => {
-    return dependencyMg.createDependency(() => {
-      forceUpdate({});
-    });
+    return dependencyMg.createDependency(() => forceUpdate({}));
   }, []);
 
   dependencyMg.registerDependency(dependency);

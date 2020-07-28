@@ -3,7 +3,7 @@ name: Trela Release
 on:
   push:
     tags:
-      - v0.* 
+      - v0.*
       - v1.*
 
 jobs:

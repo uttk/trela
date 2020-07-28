@@ -1,15 +1,18 @@
-import * as React from "react";
 import { render } from "@testing-library/react";
+import * as React from "react";
 
-import { createContextValue } from "../../src/utils/createContextValue";
-import { TrelaProvider } from "../../src/components/TrelaProvider";
-import { TrelaContextValue } from "../../src/types";
+import {
+  TrelaProvider,
+  TrelaContextValue,
+  createContextValue,
+} from "../../src/index";
 
 describe("<ClutchProvider />", () => {
   let contextValue: TrelaContextValue<any, any>;
 
   beforeEach(() => {
     contextValue = createContextValue({
+      apis: {},
       initState: 0,
       reducer: (state) => state,
     });

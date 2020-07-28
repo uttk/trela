@@ -1,17 +1,18 @@
-import * as React from "react";
 import {
   render,
   waitFor,
   fireEvent,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
-import { useTrela } from "../../src/hooks/useTrela";
-import { createContextValue } from "../../src/utils/createContextValue";
-import { TrelaProvider } from "../../src/components/TrelaProvider";
-import { TrelaContextValue } from "../../src/types";
+import * as React from "react";
+import {
+  useTrela,
+  TrelaProvider,
+  createContextValue,
+  TrelaContextValue,
+} from "../../src/index";
 import {
   apis,
-  sleep,
   reducer,
   ApisType,
   initState,
@@ -85,7 +86,7 @@ describe("Component Dependency Use Case", () => {
     const { queryByText } = render(<Root />);
 
     await waitForElementToBeRemoved(() => queryByText("App Loading"), {
-      timeout: 3000,
+      timeout: 500,
     });
 
     await waitFor(() => expect(mountCounter).toHaveBeenCalledTimes(2));
@@ -95,7 +96,7 @@ describe("Component Dependency Use Case", () => {
     const { queryByText } = render(<Root />);
 
     await waitForElementToBeRemoved(() => queryByText("Child Loading"), {
-      timeout: 3000,
+      timeout: 500,
     });
 
     await waitFor(() => expect(mountCounter).toHaveBeenCalledTimes(2));
@@ -103,20 +104,19 @@ describe("Component Dependency Use Case", () => {
   });
 
   test("Can cancel the fetchUsers action", async () => {
-    const { getByText, queryAllByText } = render(<Root />);
+    const { getByText, queryByText, queryAllByText } = render(<Root />);
     const cancelButton = getByText("Cancel");
 
-    fireEvent.click(cancelButton);
+    setTimeout(() => fireEvent.click(cancelButton));
 
-    await sleep(1000);
+    await waitForElementToBeRemoved(() => queryByText("App Loading"));
 
-    expect(getByText("App Loading")).toBeDefined();
-    expect(getByText("Child Loading")).toBeDefined();
+    expect(queryByText("Child Loading")).toBe(null);
     expect(queryAllByText(/^Example/)).toHaveLength(0);
   });
 
   test("Can refetch users", async () => {
-    const { getByText, getAllByText, queryByText } = render(<Root />);
+    const { getByText, queryAllByText, queryByText } = render(<Root />);
 
     await waitForElementToBeRemoved(() => queryByText("App Loading"));
     expect(queryByText("Child Loading")).toBeNull();
@@ -129,7 +129,7 @@ describe("Component Dependency Use Case", () => {
     expect(queryByText("Child Loading")).toBeNull();
 
     await waitFor(() =>
-      expect(getAllByText(/^Example/)).toHaveLength(
+      expect(queryAllByText(/^Example/)).toHaveLength(
         responseMockData.users.length
       )
     );

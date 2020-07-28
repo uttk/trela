@@ -9,51 +9,62 @@ module.exports = {
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:prettier/recommended",
-    "prettier/@typescript-eslint"
+    "prettier/@typescript-eslint",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
   ],
 
   settings: {
     react: {
-      version: "detect"
+      version: "detect",
     },
 
-    'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx']
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"],
+    },
+
+    "import/resolver": {
+      typescript: {
+        directory: ["./tsconfig.json", "./test/tsconfig.json"],
+      },
     },
   },
 
   globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly',
+    Atomics: "readonly",
+    SharedArrayBuffer: "readonly",
   },
 
-  parser: '@typescript-eslint/parser',
+  parser: "@typescript-eslint/parser",
 
   parserOptions: {
     ecmaFeatures: {
-      jsx: true
+      jsx: true,
     },
-    sourceType: 'module',
+    sourceType: "module",
   },
 
-  plugins: [
-    "react",
-    "jest",
-    '@typescript-eslint',
-  ],
+  plugins: ["react", "jest", "import", "@typescript-eslint"],
 
   overrides: [
     {
-      files: ['*.ts', '*.tsx'],
+      files: ["*.ts", "*.tsx"],
       rules: {
-        '@typescript-eslint/no-unused-vars': [2, { args: 'none' }]
-      }
-    }
+        "@typescript-eslint/no-unused-vars": [2, { args: "none" }],
+      },
+    },
   ],
 
   rules: {
     "prettier/prettier": "error",
     "react/prop-types": "off",
-    "import/prefer-default-export": "off"
+    "import/prefer-default-export": "off",
+    "import/order": [
+      "error",
+      {
+        alphabetize: { order: "asc", caseInsensitive: true },
+      },
+    ],
   },
 };

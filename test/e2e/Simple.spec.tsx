@@ -1,17 +1,18 @@
-import * as React from "react";
 import {
   render,
   waitFor,
   fireEvent,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
-import { useTrela } from "../../src/hooks/useTrela";
-import { createContextValue } from "../../src/utils/createContextValue";
-import { TrelaProvider } from "../../src/components/TrelaProvider";
-import { TrelaContextValue } from "../../src/types";
+import * as React from "react";
+import {
+  useTrela,
+  TrelaProvider,
+  TrelaContextValue,
+  createContextValue,
+} from "../../src/index";
 import {
   apis,
-  sleep,
   reducer,
   ApisType,
   initState,
@@ -48,7 +49,7 @@ describe("Simple Use Case", () => {
         </ul>
 
         <button onClick={() => fetchUsers().cancel()}>Cancel</button>
-        <button onClick={() => fetchUsers().forceStart()}>Refetch</button>
+        <button onClick={() => fetchUsers().start()}>Refetch</button>
       </div>
     );
   };
@@ -84,22 +85,24 @@ describe("Simple Use Case", () => {
   });
 
   test("Can cancel the fetchUsers action", async () => {
-    const { getByText, queryAllByText } = render(<Root />);
+    const { getByText, queryByText, queryAllByText } = render(<Root />);
     const cancelButton = getByText("Cancel");
 
-    fireEvent.click(cancelButton);
+    setTimeout(() => fireEvent.click(cancelButton));
 
-    await sleep(1000);
+    await waitForElementToBeRemoved(() => queryByText("Loading"));
 
-    expect(getByText("Loading")).toBeDefined();
+    expect(mountCounter).toBeCalledTimes(2);
     expect(queryAllByText(/^Example/)).toHaveLength(0);
   });
 
   test("Can refetch users", async () => {
-    const { getByText, getAllByText, queryByText } = render(<Root />);
+    const { getByText, queryByText, queryAllByText } = render(<Root />);
+
+    expect(queryAllByText(/^Example/)).toHaveLength(0);
 
     await waitForElementToBeRemoved(() => queryByText("Loading"));
-    expect(getAllByText(/^Example/)).toHaveLength(
+    expect(queryAllByText(/^Example/)).toHaveLength(
       responseMockData.users.length
     );
 
@@ -108,7 +111,7 @@ describe("Simple Use Case", () => {
     fireEvent.click(refetchButton);
 
     await waitForElementToBeRemoved(() => queryByText("Loading"));
-    expect(getAllByText(/^Example/)).toHaveLength(
+    expect(queryAllByText(/^Example/)).toHaveLength(
       responseMockData.users.length
     );
 

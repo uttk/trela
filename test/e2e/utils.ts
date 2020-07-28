@@ -22,7 +22,7 @@ export type Actions<K = ApiKeys> = K extends ApiKeys
 
 export const sleep = (t: number) => new Promise((r) => setTimeout(r, t));
 
-export const randomSleep = (max: number = 300) => {
+export const randomSleep = (max: number = 100) => {
   return sleep(Math.floor(Math.random() * max));
 };
 
@@ -58,8 +58,5 @@ export const reducer = (state: StateType, action: Actions): StateType => {
 
     case "fetchUsers":
       return { ...state, users: action.payload };
-
-    default:
-      return state;
   }
 };

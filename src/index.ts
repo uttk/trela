@@ -1,16 +1,15 @@
 export { useTrela } from "./hooks/useTrela";
-export { useStore } from "./hooks/useStore";
-export { createAffecters } from "./utils/createAffecters";
-export { TrelaProvider } from "./components/TrelaProvider";
-export { createContextValue } from "./utils/createContextValue";
+export { TrelaProvider } from "./components/Provider";
+export { createContextValue } from "./util/createContextValue";
 export {
-  Effect,
-  Affecter,
+  Flow,
+  FlowApi,
   Selector,
-  TrelaApis,
-  Affecters,
-  TrelaOptions,
-  TrelaReducer,
-  StreamerStatus,
+  TrelaApi,
+  ApisBase,
+  FlowStatus,
+  ContextOptions,
+  TrelaContextValue,
   CreateActionsType,
-} from "./types";
+  Reducer as TrelaReducer,
+} from "./type/index";
