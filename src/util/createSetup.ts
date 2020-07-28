@@ -7,17 +7,17 @@ export const createSetup = <S, A extends ApisBase>(
 
   dep.bookUpdate(flow.id);
 
-  flow.addEventCallback("started", () => {
+  flow.addEventListener("started", () => {
     if (dep.didMount) {
       dep.updateComponentView();
     }
   });
 
-  flow.addEventCallback("cancel", () => {
+  flow.addEventListener("cancel", () => {
     dependencyMg.tryUpdateView(flow);
   });
 
-  flow.addEventCallback("finished", () => {
+  flow.addEventListener("finished", () => {
     dependencyMg.tryUpdateView(flow);
   });
 };
