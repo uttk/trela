@@ -29,7 +29,7 @@ export class FlowClass<S, A extends ApisBase> implements Flow<S, A> {
     return this.store;
   }
 
-  addEventCallback(type: FlowStatus, callback: () => void) {
+  addEventListener(type: FlowStatus, callback: () => void) {
     const callbacks = this.callbacks.get(type) || new Set();
 
     this.callbacks.set(type, callbacks.add(callback));
@@ -38,8 +38,6 @@ export class FlowClass<S, A extends ApisBase> implements Flow<S, A> {
   }
 
   start = () => {
-    if (this.status === "started") return;
-
     this.changeStatus("started");
     this.request(this);
   };
@@ -48,14 +46,12 @@ export class FlowClass<S, A extends ApisBase> implements Flow<S, A> {
     this.changeStatus("cancel");
   };
 
-  error = (payload: Error) => {
-    this.currentError = payload;
+  error = (payload?: Error) => {
+    this.currentError = payload || this.currentError;
     this.changeStatus("error");
   };
 
   complete = () => {
-    if (this.status !== "started") return;
-
     this.changeStatus("finished");
   };
 }

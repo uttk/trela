@@ -30,7 +30,7 @@ describe("DependencyClass Tests", () => {
       keys.forEach((v) => {
         const key = v as FlowStatus;
 
-        flow.addEventCallback(key, eventCallbackMock);
+        flow.addEventListener(key, eventCallbackMock);
         flow["changeStatus"](key);
 
         expect(eventCallbackMock).toBeCalledTimes(1);
@@ -43,7 +43,7 @@ describe("DependencyClass Tests", () => {
       const eventCallbackMock = jest.fn();
 
       expect(flow.status).toEqual("none");
-      flow.addEventCallback("none", eventCallbackMock);
+      flow.addEventListener("none", eventCallbackMock);
 
       flow["changeStatus"]("none");
       expect(eventCallbackMock).not.toBeCalled();
@@ -56,7 +56,7 @@ describe("DependencyClass Tests", () => {
     });
   });
 
-  describe("addEventCallback", () => {
+  describe("addEventListener", () => {
     const keys = ["cancel", "error", "finished", "none", "started"];
 
     test("Can add a passed callback", () => {
@@ -65,13 +65,13 @@ describe("DependencyClass Tests", () => {
       keys.forEach((v) => {
         const key = v as FlowStatus;
 
-        flow.addEventCallback(key, callback);
+        flow.addEventListener(key, callback);
         expect(flow["callbacks"].get(key)?.size).toBe(1);
 
-        flow.addEventCallback(key, callback);
+        flow.addEventListener(key, callback);
         expect(flow["callbacks"].get(key)?.size).toBe(1);
 
-        flow.addEventCallback(key, () => void 0);
+        flow.addEventListener(key, () => void 0);
         expect(flow["callbacks"].get(key)?.size).toBe(2);
       });
     });
@@ -79,7 +79,7 @@ describe("DependencyClass Tests", () => {
     test("Return a removeCallback function", () => {
       keys.forEach((v) => {
         const key = v as FlowStatus;
-        const removeCallback = flow.addEventCallback(key, () => void 0);
+        const removeCallback = flow.addEventListener(key, () => void 0);
 
         expect(flow["callbacks"].get(key)?.size).toBe(1);
 
@@ -90,12 +90,12 @@ describe("DependencyClass Tests", () => {
   });
 
   describe("start", () => {
-    test("Execute the passed request function when flow.status is not 'started'", () => {
+    test("Execute the passed request function", () => {
       flow.start();
       expect(requestMock).toBeCalledTimes(1);
 
       flow.start();
-      expect(requestMock).toBeCalledTimes(1);
+      expect(requestMock).toBeCalledTimes(2);
     });
 
     test("Change flow.status to 'started'", () => {
@@ -122,7 +122,7 @@ describe("DependencyClass Tests", () => {
     test("Change flow.status to 'error'", () => {
       expect(flow.status).not.toEqual("error");
 
-      flow.error(new Error());
+      flow.error();
       expect(flow.status).toEqual("error");
     });
 
@@ -137,15 +137,13 @@ describe("DependencyClass Tests", () => {
   });
 
   describe("complete", () => {
-    test("Change flow.status to 'finished' when it is 'started'", () => {
-      expect(flow.status).not.toEqual("started");
-
-      flow.complete();
+    test("Change flow.status to 'finished'", () => {
       expect(flow.status).not.toEqual("finished");
 
-      flow.status = "started";
-      expect(flow.status).toEqual("started");
+      flow.complete();
+      expect(flow.status).toEqual("finished");
 
+      flow.status = "started";
       flow.complete();
       expect(flow.status).toEqual("finished");
     });

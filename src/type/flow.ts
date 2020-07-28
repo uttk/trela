@@ -12,8 +12,8 @@ export interface Flow<S, A extends ApisBase> {
   start(): void;
   cancel(): void;
   complete(): void;
-  error(error: Error): void;
-  addEventCallback(type: FlowStatus, callback: () => void): () => void;
+  error(payload?: Error): void;
+  addEventListener(type: FlowStatus, callback: () => void): () => void;
 }
 
 export interface FlowApi<S> {
@@ -23,7 +23,8 @@ export interface FlowApi<S> {
   start(): void;
   cancel(): void;
   forceStart(): void;
-  error(payload: Error): void;
+  error(payload?: Error): void;
+  addEventListener(type: FlowStatus, callback: () => void): () => void;
 }
 
 export type FlowRequest<S, A extends ApisBase> = (flow: Flow<S, A>) => void;
