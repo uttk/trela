@@ -228,6 +228,7 @@ const contextValue = createContextValue({
   },
 
   /**
+   * @required
    * @type { { [key:string]: (...args:any[]) => Promise<any> } }
    * @description
    * Define asynchronous actions
@@ -246,46 +247,6 @@ const contextValue = createContextValue({
 
       return { isLogin };
     },
-  },
-
-  /**
-   * @type { (store: StoreClass) => Affecters }
-   * @description
-   * Can define the actual processing for the asynchronous action.
-   * Default definitions are defined in src/utils/createAffecters.ts
-   */
-  affecters: (store) => {
-    return {
-      // @type EffectType : "request" | "resolve" | "done" | "cancel" | "error"
-      // @type effect : { type: EffectType; request: stirng; payload: any }
-      // @type next : (effect) => void;
-      // @type done : (effect) => void
-
-      // When an asynchronous action is canceled
-      cancel: (effect, next, done) => {
-        /* ... */
-      },
-
-      // When an asynchronous action throws an error
-      error: (effect, next, done) => {
-        /* ... */
-      },
-
-      // When an asynchronous action is requested
-      request: (effect, next, done) => {
-        /* ... */
-      },
-
-      // Resolve the requested asynchronous action
-      resolve: (effect, next, done) => {
-        /* ... */
-      },
-
-      // Process resolved results
-      done: (effect, next, done) => {
-        /* ... */
-      },
-    };
   },
 });
 ```
@@ -386,10 +347,10 @@ const ExampleComponent = () => {
 ## apis
 
 `apis` is an object that wrapped the `apis` object defined by the createContextValue function.
-The function in the object takes the same arguments as the function you defined, but the return value is StreamerClass instance.
-Also, Return the same StreamerClass instance when the passed arguments are the same.
+The function in the object takes the same arguments as the function you defined, but the return value is Flow instance.
+Also, Return the same Flow instance when the passed arguments are the same.
 
-**Type : { [ key : string ] : (args: ...any[]) => StreamerClass }**
+**Type : { [ key : string ] : (args: ...any[]) => Flow }**
 
 **Example**
 
@@ -408,18 +369,20 @@ const contextValue = createContextValue({
   },
 });
 
+/* ... */
+
 const ExampleComponent = () => {
   const { steps, apis } = useTrela();
   const { fetchUser, isLogin } = apis;
 
-  const loginStreamer = isLogin();
+  const loginFlow = isLogin();
 
-  const userStreamer = fetchUser("example uid");
-  const userStreamer2 = fetchUser("example uid");
-  const userStreamer3 = fetchUser("other uid");
+  const userFlow = fetchUser("example uid");
+  const userFlow2 = fetchUser("example uid");
+  const userFlow3 = fetchUser("other uid");
 
-  // userStreamer === userStreamer2 // true
-  // userStreamer === userStreamer3 // false
+  // userFlow === userFlow2 // true
+  // userFlow === userFlow3 // false
 
   /* ... */
 };
@@ -429,14 +392,14 @@ const ExampleComponent = () => {
 
 Execute asynchronous actions serially.
 
-**Type : ( streamers : StreamerClass[] ) => StreamerClass**
+**Type : ( flows : Flow[] ) => Flow**
 
 **Example**
 
 ```jsx
 const ExampleComponent = () => {
   const { steps, apis } = useTrela();
-  const {} = apis;
+  const { anyApi, anyApi2 } = apis;
 
   // Perform asynchronous actions in array order
   // In this example: anyApi -> anyApi2
@@ -452,7 +415,7 @@ const ExampleComponent = () => {
 
 Execute asynchronous actions in parallel.
 
-**Type : ( streamers : StreamerClass[] ) => StreamerClass**
+**Type : ( flows : Flow[] ) => Flow**
 
 **Example**
 
@@ -470,7 +433,7 @@ const ExampleComponent = () => {
 };
 ```
 
-## StreamerClass.once
+## Flow.once
 
 Execute asynchronous action only once and update the view when the action is complete. Also, This function can be directly written to the component field.
 
@@ -490,9 +453,9 @@ const ExampleComponent = () => {
 };
 ```
 
-## StreamerClass.start
+## Flow.start
 
-Execute asynchronous action. If the action is running, skip the process.
+Execute asynchronous action. Skip the process when the action is running.
 
 **Type : () => void**
 
@@ -523,11 +486,11 @@ const ExampleComponent = () => {
 /* ... */
 ```
 
-## StreamerClass.forceStart
+## Flow.forceStart
 
 Force an asynchronous action. Also, the asynchronous action being executed will be canceled when the first argument is true.
 
-**Type : ( cancel? : boolean, payload? : any ) => void**
+**Type : () => void**
 
 **Example**
 
@@ -546,11 +509,11 @@ const ExampleComponent = () => {
 /* ... */
 ```
 
-## StreamerClass.cancel
+## Flow.cancel
 
 Cancels a running asynchronous action.
 
-**Type : ( payload? : any ) => void**
+**Type : () => void**
 
 **Example**
 
@@ -580,11 +543,11 @@ const ExampleComponent = () => {
 /* ... */
 ```
 
-## StreamerClass.error
+## Flow.error
 
 Raises an error to a running asynchronous action.
 
-**Type : ( payload : Error ) => void**
+**Type : ( payload? : Error ) => void**
 
 **Example**
 
@@ -605,7 +568,7 @@ const ExampleComponent = () => {
     <>
       {/* ... */}
 
-      <button onClick={onClick}> Throw Error </button>
+      <button onClick={onClick}> Send an Error </button>
 
       {/* ... */}
     </>
@@ -615,9 +578,9 @@ const ExampleComponent = () => {
 /* ... */
 ```
 
-## StreamerClass.finish
+## Flow.complete
 
-Finishes the running asynchronous action.
+Completes the running asynchronous action.
 
 **Type : ( payload? : any ) => void**
 
@@ -632,14 +595,14 @@ const ExampleComponent = () => {
   const [state, isPending] = ref.once();
 
   const onClick = () => {
-    ref.finish();
+    ref.complete();
   };
 
   return (
     <>
       {/* ... */}
 
-      <button onClick={onClick}> Finish Action </button>
+      <button onClick={onClick}> Complete Action </button>
 
       {/* ... */}
     </>
@@ -649,11 +612,11 @@ const ExampleComponent = () => {
 /* ... */
 ```
 
-## StreamerClass.addEventListener
+## Flow.addEventListener
 
 Receive status of asynchronous action.
 
-**Type : ( type : StreamerStatus, callback : () => void ) => removeListener**
+**Type : ( type : FlowStatus, callback : () => void ) => removeListener**
 
 **Example**
 
@@ -666,7 +629,7 @@ const ExampleComponent = () => {
   const [state, isPending] = ref.once();
 
   useEffect(() => {
-    // @type StreamerStatus : { "started" | "cancel" | "error" | "finished" }
+    // @type FlowStatus : "started" | "cancel" | "error" | "finished"
     const removeListener = ref.addEventListener("started", () => {
       /* ... */
     });
