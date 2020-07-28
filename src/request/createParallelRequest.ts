@@ -15,9 +15,30 @@ export const createParallelRequest = <S, A extends ApisBase>(
     };
 
     flowList.forEach((flow) => {
-      flow.addEventCallback("finished", allComplete);
-      flow.addEventCallback("cancel", baseFlow.cancel);
-      flow.addEventCallback("error", () => baseFlow.error(flow.currentError));
+      const removeCallbacks: Set<() => void> = new Set();
+      const clear = () => {
+        removeCallbacks.forEach((f) => f());
+        removeCallbacks.clear();
+      };
+
+      removeCallbacks.add(
+        flow.addEventCallback("finished", () => {
+          clear();
+          allComplete();
+        })
+      );
+      removeCallbacks.add(
+        flow.addEventCallback("cancel", () => {
+          clear();
+          baseFlow.cancel();
+        })
+      );
+      removeCallbacks.add(
+        flow.addEventCallback("error", () => {
+          clear();
+          baseFlow.error(flow.currentError);
+        })
+      );
 
       flow.start();
     });
