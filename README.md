@@ -582,7 +582,7 @@ const ExampleComponent = () => {
 
 Completes the running asynchronous action.
 
-**Type : ( payload? : any ) => void**
+**Type : () => void**
 
 **Example**
 
