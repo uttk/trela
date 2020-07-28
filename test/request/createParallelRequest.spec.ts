@@ -1,21 +1,22 @@
 import { FlowClass } from "@/elements/flow";
 import { StoreClass } from "@/elements/store";
 import { createParallelRequest } from "@/request/createParallelRequest";
-import { Store } from "@/type";
+import { Store, FlowApi } from "@/type";
+import { createFlowApi } from "@/util/createFlowApi";
 
 describe("createParallelRequest", () => {
   const initState = { test: "" };
 
-  type StateType = typeof initState;
-  type Apis = { test: () => Promise<string> };
+  type S = typeof initState;
+  type A = { test: () => Promise<string> };
 
-  const createRequest = (payload: FlowClass<StateType, Apis>[]) => {
-    return createParallelRequest(payload);
+  const createRequest = (payload: FlowApi<S>[]) => {
+    return createParallelRequest<S, A>(payload);
   };
 
-  let apis: Apis;
+  let apis: A;
   let apiMock: jest.Mock<Promise<string>, []>;
-  let store: Store<StateType, Apis>;
+  let store: Store<S, A>;
 
   beforeEach(() => {
     apiMock = jest.fn(async () => "test");
@@ -36,7 +37,7 @@ describe("createParallelRequest", () => {
 
       flow.start = startMock;
 
-      return flow;
+      return createFlowApi(flow, () => void 0);
     });
     const parallelFlow = new FlowClass(2, store, createRequest(children));
 
@@ -47,8 +48,9 @@ describe("createParallelRequest", () => {
   test("Can execute complete function when all children flows complete", () => {
     const childComplete: Array<() => void> = [];
     const children = [1, 2].map((id) => {
-      return new FlowClass(id, store, (flow) =>
-        childComplete.push(flow.complete)
+      return createFlowApi(
+        new FlowClass(id, store, (flow) => childComplete.push(flow.complete)),
+        () => void 0
       );
     });
     const parallelFlow = new FlowClass(2, store, createRequest(children));
@@ -66,10 +68,13 @@ describe("createParallelRequest", () => {
 
   test("Execute error function when children flows throw an error", () => {
     const children = [1, 2].map((id) => {
-      return new FlowClass(id, store, (flow) => {
-        if (id === 2) flow.error(new Error());
-        else flow.complete();
-      });
+      return createFlowApi(
+        new FlowClass(id, store, (flow) => {
+          if (id === 2) flow.error();
+          else flow.complete();
+        }),
+        () => void 0
+      );
     });
     const parallelFlow = new FlowClass(2, store, createRequest(children));
     const errorMock = jest.fn();
@@ -82,10 +87,13 @@ describe("createParallelRequest", () => {
 
   test("Execute cancel function when children flows cancel", () => {
     const children = [1, 2].map((id) => {
-      return new FlowClass(id, store, (flow) => {
-        if (id === 2) flow.cancel();
-        else flow.complete();
-      });
+      return createFlowApi(
+        new FlowClass(id, store, (flow) => {
+          if (id === 2) flow.cancel();
+          else flow.complete();
+        }),
+        () => void 0
+      );
     });
     const parallelFlow = new FlowClass(2, store, createRequest(children));
     const cancelMock = jest.fn();

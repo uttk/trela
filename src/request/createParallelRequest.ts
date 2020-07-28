@@ -1,46 +1,36 @@
 import { ApisBase } from "../type";
-import { Flow } from "../type/flow";
+import { Flow, FlowApi } from "../type/flow";
 
 export const createParallelRequest = <S, A extends ApisBase>(
-  flowList: Flow<S, A>[]
+  flowList: FlowApi<S>[]
 ) => {
-  return (baseFlow: Flow<S, A>) => {
+  return (flow: Flow<S, A>) => {
     const max = flowList.length;
     let index = 0;
 
-    const allComplete = () => {
+    const complete = () => {
       if (++index >= max) {
-        baseFlow.complete();
+        flow.complete();
       }
     };
 
-    flowList.forEach((flow) => {
+    flowList.forEach((flowApi) => {
       const removeCallbacks: Set<() => void> = new Set();
-      const clear = () => {
-        removeCallbacks.forEach((f) => f());
-        removeCallbacks.clear();
+      const wrap = (callback: () => void) => {
+        return () => {
+          removeCallbacks.forEach((f) => f());
+          removeCallbacks.clear();
+          callback();
+        };
       };
 
+      removeCallbacks.add(flowApi.addEventListener("finished", wrap(complete)));
+      removeCallbacks.add(flowApi.addEventListener("error", wrap(flow.error)));
       removeCallbacks.add(
-        flow.addEventCallback("finished", () => {
-          clear();
-          allComplete();
-        })
-      );
-      removeCallbacks.add(
-        flow.addEventCallback("cancel", () => {
-          clear();
-          baseFlow.cancel();
-        })
-      );
-      removeCallbacks.add(
-        flow.addEventCallback("error", () => {
-          clear();
-          baseFlow.error(flow.currentError);
-        })
+        flowApi.addEventListener("cancel", wrap(flow.cancel))
       );
 
-      flow.start();
+      flowApi.start();
     });
   };
 };
