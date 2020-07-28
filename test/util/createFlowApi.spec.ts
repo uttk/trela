@@ -25,6 +25,7 @@ describe("createFlowApi", () => {
   test("Return a flow api object", () => {
     const keys = Object.keys(flowApi);
     const expectKeys: Array<keyof FlowApi<any>> = [
+      "addEventListener",
       "cancel",
       "error",
       "forceStart",
@@ -47,7 +48,7 @@ describe("createFlowApi", () => {
   describe("Apis", () => {
     let startMock: () => void;
     let cancelMock: () => void;
-    let errorMock: (error: Error) => void;
+    let errorMock: (error?: Error) => void;
 
     beforeEach(() => {
       startMock = jest.fn(flow.start);
@@ -150,22 +151,28 @@ describe("createFlowApi", () => {
     });
 
     describe("error", () => {
+      test("Can pass the Error", () => {
+        flow.status = "started";
+        flowApi.error(new Error());
+        expect(errorMock).toBeCalled();
+      });
+
       test("Execute flow.error only when flow.status is 'started'", () => {
         expect(flow.status).not.toEqual("started");
 
-        flowApi.error(new Error("Empty Error"));
+        flowApi.error();
         expect(errorMock).not.toBeCalled();
 
         flow.status = "started";
-        flowApi.error(new Error("Empty Error"));
+        flowApi.error();
         expect(errorMock).toBeCalledTimes(1);
       });
 
       test("Always execute the passed setup function in error function", () => {
-        flowApi.error(new Error("Empty Error"));
+        flowApi.error();
         expect(setupMock).toBeCalledTimes(1);
 
-        flowApi.error(new Error("Empty Error"));
+        flowApi.error();
         expect(setupMock).toBeCalledTimes(2);
       });
     });
