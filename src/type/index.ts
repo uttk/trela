@@ -25,10 +25,12 @@ export interface TrelaContextValue<S, A extends ApisBase> {
   dependencyMg: DependencyManager<S>;
   utils: {
     setup: Setup<S, A>;
-    createSeriesRequest(flowList: Flow<S, A>[]): FlowRequest<S, A>;
-    createParallelRequest: (flowList: Flow<S, A>[]) => FlowRequest<S, A>;
     // eslint-disable-next-line prettier/prettier
     createFlowApi: (flow: Flow<S, A>, setup: () => void) => FlowApi<S>;
+
+    // requests
+    createSeriesRequest(flowApis: FlowApi<S>[]): FlowRequest<S, A>;
+    createParallelRequest: (flowApis: FlowApi<S>[]) => FlowRequest<S, A>;
     // eslint-disable-next-line prettier/prettier
     createApiRequest: <AK extends keyof A>(request: AK, payload: Parameters<A[AK]>) => FlowRequest<S, A>;
   };

@@ -40,17 +40,15 @@ export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
     }, {} as FlowWrapApis<S, A>),
 
     steps: (flowApis) => {
-      const flowList = flowApis.map((v) => flowMg.getFlowFromApi(v));
-      const id = flowMg.createId("s:" + flowList.map((v) => v.id).join(""));
-      const flow = flowMg.createFlow(id, createSeriesRequest(flowList));
+      const id = flowMg.createId("s:" + flowApis.map((v) => v.id).join(""));
+      const flow = flowMg.createFlow(id, createSeriesRequest(flowApis));
 
       return createFlowApi(flow, () => setup(flow, dependency));
     },
 
     all: (flowApis) => {
-      const flowList = flowApis.map((v) => flowMg.getFlowFromApi(v));
-      const id = flowMg.createId("p:" + flowList.map((v) => v.id).join(""));
-      const flow = flowMg.createFlow(id, createParallelRequest(flowList));
+      const id = flowMg.createId("p:" + flowApis.map((v) => v.id).join(""));
+      const flow = flowMg.createFlow(id, createParallelRequest(flowApis));
 
       return createFlowApi(flow, () => setup(flow, dependency));
     },
