@@ -83,6 +83,26 @@ describe("createFlowApi", () => {
         flowApi.once();
         expect(setupMock).toBeCalledTimes(2);
       });
+
+      test("Execute flow.start only when flow.status is 'none' even if it is executed from 'only' property", () => {
+        expect(flow.status).toEqual("none");
+
+        flowApi.only.once();
+        expect(startMock).toBeCalledTimes(1);
+
+        flowApi.only.once();
+        expect(startMock).toBeCalledTimes(1);
+        expect(flow.status).not.toEqual("none");
+
+        flow.status = "none";
+        flowApi.only.once();
+        expect(startMock).toBeCalledTimes(2);
+      });
+
+      test("Do not execute setup function when executed from 'only.once'", () => {
+        flowApi.only.once();
+        expect(setupMock).not.toBeCalled();
+      });
     });
 
     describe("start", () => {
@@ -108,6 +128,26 @@ describe("createFlowApi", () => {
         flowApi.start();
         expect(setupMock).toBeCalledTimes(2);
       });
+
+      test("Execute flow.start when flow.status is not 'started' even if it is executed from 'only' property", () => {
+        expect(flow.status).not.toEqual("started");
+
+        flowApi.only.start();
+        expect(startMock).toBeCalledTimes(1);
+
+        flowApi.only.start();
+        expect(startMock).toBeCalledTimes(1);
+        expect(flow.status).toEqual("started");
+
+        flow.status = "none";
+        flowApi.only.start();
+        expect(startMock).toBeCalledTimes(2);
+      });
+
+      test("Do not execute setup function when executed from 'only.start'", () => {
+        flowApi.only.start();
+        expect(setupMock).not.toBeCalled();
+      });
     });
 
     describe("forceStart", () => {
@@ -127,6 +167,21 @@ describe("createFlowApi", () => {
 
         flowApi.forceStart();
         expect(setupMock).toBeCalledTimes(2);
+      });
+
+      test("Always execute flow.start and cancel even if it is executed from 'only' property", () => {
+        flowApi.only.forceStart();
+        expect(startMock).toBeCalledTimes(1);
+        expect(cancelMock).toBeCalledTimes(1);
+
+        flowApi.only.forceStart();
+        expect(startMock).toBeCalledTimes(2);
+        expect(cancelMock).toBeCalledTimes(2);
+      });
+
+      test("Do not execute setup function when executed from 'only.forceStart'", () => {
+        flowApi.only.forceStart();
+        expect(setupMock).not.toBeCalled();
       });
     });
 
@@ -149,6 +204,22 @@ describe("createFlowApi", () => {
         flowApi.cancel();
         expect(setupMock).toBeCalledTimes(2);
       });
+
+      test("Execute flow.cancel only when flow.status is 'started' even if it is executed from 'only' property", () => {
+        expect(flow.status).not.toEqual("started");
+
+        flowApi.only.cancel();
+        expect(cancelMock).not.toBeCalled();
+
+        flow.status = "started";
+        flowApi.only.cancel();
+        expect(cancelMock).toBeCalledTimes(1);
+      });
+
+      test("Do not execute setup function when executed from 'only.cancel'", () => {
+        flowApi.only.cancel();
+        expect(setupMock).not.toBeCalled();
+      });
     });
 
     describe("error", () => {
@@ -156,6 +227,10 @@ describe("createFlowApi", () => {
         flow.status = "started";
         flowApi.error(new Error());
         expect(errorMock).toBeCalled();
+
+        flow.status = "started";
+        flowApi.only.error(new Error());
+        expect(errorMock).toBeCalledTimes(2);
       });
 
       test("Execute flow.error only when flow.status is 'started'", () => {
@@ -175,6 +250,22 @@ describe("createFlowApi", () => {
 
         flowApi.error();
         expect(setupMock).toBeCalledTimes(2);
+      });
+
+      test("Execute flow.error only when flow.status is 'started' even if it is executed from 'only' property", () => {
+        expect(flow.status).not.toEqual("started");
+
+        flowApi.only.error();
+        expect(errorMock).not.toBeCalled();
+
+        flow.status = "started";
+        flowApi.only.error();
+        expect(errorMock).toBeCalledTimes(1);
+      });
+
+      test("Do not execute setup function when executed from 'only.error'", () => {
+        flowApi.only.error();
+        expect(setupMock).not.toBeCalled();
       });
     });
   });
