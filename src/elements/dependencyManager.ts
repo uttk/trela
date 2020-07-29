@@ -3,12 +3,27 @@ import { DependencyClass } from "./dependency";
 
 export class DependencyManagerClass<S> implements DependencyManager<S> {
   private counter: number = 0;
+  private listenFlows: Map<Flow<S, any>["id"], Flow<S, any>> = new Map();
   private dependencies: Map<Dependency<S>["id"], Dependency<S>> = new Map();
 
   private filterWillMountDependencies(
     entries: Array<[Dependency<S>["id"], Dependency<S>]>
   ): Dependency<S>["parents"] {
     return new Map(entries.filter(([, dep]) => !dep.didMount));
+  }
+
+  listenFlow(flow: Flow<S, any>) {
+    if (this.listenFlows.has(flow.id)) return;
+
+    this.listenFlows.set(flow.id, flow);
+
+    flow.addEventListener("cancel", () => {
+      this.tryUpdateView(flow);
+    });
+
+    flow.addEventListener("finished", () => {
+      this.tryUpdateView(flow);
+    });
   }
 
   tryUpdateView(flow: Flow<S, any>) {

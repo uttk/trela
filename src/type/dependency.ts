@@ -19,6 +19,7 @@ export interface Dependency<S> {
 }
 
 export interface DependencyManager<S> {
+  listenFlow(flow: Flow<S, any>): void;
   tryUpdateView(flow: Flow<S, any>): void;
   createDependency(updateComponentView: () => void): Dependency<S>;
   registerDependency(dependency: Dependency<S>): void;

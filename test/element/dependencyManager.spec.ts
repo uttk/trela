@@ -35,6 +35,29 @@ describe("DependencyManagerClass Tests", () => {
     dependencyMg = new DependencyManagerClass();
   });
 
+  describe("listenFlow", () => {
+    test("Execute flow.addEventListener", () => {
+      const anyFunc = expect.any(Function);
+      const addEventListenerMock = jest.fn(flow.addEventListener);
+
+      flow.addEventListener = addEventListenerMock;
+
+      dependencyMg.listenFlow(flow);
+      expect(addEventListenerMock).toBeCalledWith("cancel", anyFunc);
+      expect(addEventListenerMock).toBeCalledWith("finished", anyFunc);
+    });
+
+    test("do not execute flow.addEventListener when do not execute flow.addEventListener", () => {
+      const addEventListenerMock = jest.fn(flow.addEventListener);
+
+      flow.addEventListener = addEventListenerMock;
+      dependencyMg["listenFlows"].set(flow.id, flow);
+
+      dependencyMg.listenFlow(flow);
+      expect(addEventListenerMock).not.toBeCalled();
+    });
+  });
+
   describe("tryUpdateView", () => {
     test("Execute updateComponentView function of Dependency that has passed flow id", () => {
       const flowId = flow.id;
