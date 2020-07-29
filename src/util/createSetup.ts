@@ -13,11 +13,5 @@ export const createSetup = <S, A extends ApisBase>(
     }
   });
 
-  flow.addEventListener("cancel", () => {
-    dependencyMg.tryUpdateView(flow);
-  });
-
-  flow.addEventListener("finished", () => {
-    dependencyMg.tryUpdateView(flow);
-  });
+  dependencyMg.listenFlow(flow);
 };

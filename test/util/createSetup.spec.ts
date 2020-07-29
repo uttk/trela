@@ -33,4 +33,20 @@ describe("createSetup", () => {
     expect(bookUpdateMock).toBeCalledTimes(1);
     expect(dep.hasFlowId(flow.id)).toBeTruthy();
   });
+
+  test("Execute listenFlow when passed Dependency does not have passed Flow Id", () => {
+    const flow = new FlowClass(1, store, () => void 0);
+    const dep = dependencyMg.createDependency(() => void 0);
+    const setup = createSetup(dependencyMg);
+    const listenFlow = jest.fn(dependencyMg.listenFlow);
+
+    dependencyMg.listenFlow = listenFlow;
+
+    setup(flow, dep);
+    expect(listenFlow).toBeCalledTimes(1);
+    expect(listenFlow).toBeCalledWith(flow);
+
+    setup(flow, dep);
+    expect(listenFlow).toBeCalledTimes(1);
+  });
 });
