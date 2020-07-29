@@ -90,27 +90,17 @@ describe("Multiple Use Case", () => {
   });
 
   test("Can be displayed Loading Status", async () => {
-    const { queryByText } = render(<Root />);
+    const { queryAllByText } = render(<Root />);
+    const label = /Loading User List \d/;
 
-    await Promise.all(
-      new Array(ComponentCount).fill(0).map((_, i) => {
-        return waitForElementToBeRemoved(() =>
-          queryByText(`Loading User List ${i}`)
-        );
-      })
-    );
+    await waitForElementToBeRemoved(() => queryAllByText(label));
   });
 
   test("Keep the display count to a minimum", async () => {
-    const { queryByText } = render(<Root />);
+    const { queryAllByText } = render(<Root />);
+    const label = /Loading User List \d/;
 
-    await Promise.all(
-      new Array(ComponentCount).fill(0).map((_, i) => {
-        return waitForElementToBeRemoved(() =>
-          queryByText(`Loading User List ${i}`)
-        );
-      })
-    );
+    await waitForElementToBeRemoved(() => queryAllByText(label));
 
     mountCounters.forEach((mountCounter) => {
       expect(mountCounter).toHaveBeenCalledTimes(2);
@@ -118,18 +108,13 @@ describe("Multiple Use Case", () => {
   });
 
   test("Can cancel the fetchUsers action", async () => {
-    const { getByText, queryByText, queryAllByText } = render(<Root />);
+    const { getByText, queryAllByText } = render(<Root />);
     const cancelButton = getByText("Cancel");
+    const label = /Loading User List \d/;
 
     setTimeout(() => fireEvent.click(cancelButton));
 
-    await Promise.all(
-      new Array(ComponentCount).fill(0).map((_, i) => {
-        return waitForElementToBeRemoved(() =>
-          queryByText(`Loading User List ${i}`)
-        );
-      })
-    );
+    await waitForElementToBeRemoved(() => queryAllByText(label));
 
     mountCounters.forEach((mountCounter) => {
       expect(mountCounter).toBeCalledTimes(2);
@@ -138,18 +123,12 @@ describe("Multiple Use Case", () => {
   });
 
   test("Can refetch users", async () => {
-    const { getByText, queryByText, queryAllByText } = render(<Root />);
+    const { getByText, queryAllByText } = render(<Root />);
+    const label = /Loading User List \d/;
 
     expect(queryAllByText(/^Example/)).toHaveLength(0);
 
-    await Promise.all(
-      new Array(ComponentCount).fill(0).map((_, i) => {
-        return waitForElementToBeRemoved(() =>
-          queryByText(`Loading User List ${i}`)
-        );
-      })
-    );
-
+    await waitForElementToBeRemoved(() => queryAllByText(label));
     expect(queryAllByText(/^Example/)).toHaveLength(
       responseMockData.users.length * ComponentCount
     );
@@ -158,18 +137,10 @@ describe("Multiple Use Case", () => {
 
     fireEvent.click(refetchButton);
 
-    await Promise.all(
-      new Array(ComponentCount).fill(0).map((_, i) => {
-        return waitForElementToBeRemoved(() =>
-          queryByText(`Loading User List ${i}`)
-        );
-      })
-    );
-
+    await waitForElementToBeRemoved(() => queryAllByText(label));
     expect(queryAllByText(/^Example/)).toHaveLength(
       responseMockData.users.length * ComponentCount
     );
-
     mountCounters.forEach((mountCounter) => {
       expect(mountCounter).toBeCalledTimes(4);
     });
