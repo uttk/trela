@@ -146,5 +146,18 @@ describe("DependencyClass Tests", () => {
         expect(selector).toBeCalledTimes(1);
       });
     });
+
+    test("Does not execute selectors when true is confirmed", () => {
+      const falseSelector: (v: any) => [any] = jest.fn((s) => [s]);
+      const trueSelector: (v: any) => [any, true] = jest.fn((s) => [s, true]);
+
+      dependency.selectors.add(falseSelector);
+      dependency.selectors.add(trueSelector);
+      dependency.selectors.add((s) => falseSelector(s));
+
+      expect(dependency.isListenState(null)).toBeTruthy();
+      expect(falseSelector).toBeCalledTimes(1);
+      expect(trueSelector).toBeCalledTimes(1);
+    });
   });
 });
