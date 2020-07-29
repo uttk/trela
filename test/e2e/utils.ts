@@ -22,10 +22,6 @@ export type Actions<K = ApiKeys> = K extends ApiKeys
 
 export const sleep = (t: number) => new Promise((r) => setTimeout(r, t));
 
-export const randomSleep = (max: number = 100) => {
-  return sleep(Math.floor(Math.random() * max));
-};
-
 export const initState: StateType = {
   isLogin: false,
   users: [],
@@ -39,13 +35,13 @@ export const responseMockData = {
 
 export const apis = {
   checkLogin: async () => {
-    await randomSleep();
+    await sleep(100);
 
     return true;
   },
 
   fetchUsers: async () => {
-    await randomSleep();
+    await sleep(100);
 
     return responseMockData.users;
   },

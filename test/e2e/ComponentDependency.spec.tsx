@@ -85,9 +85,7 @@ describe("Component Dependency Use Case", () => {
   test("Keep the App component display count to a minimum", async () => {
     const { queryByText } = render(<Root />);
 
-    await waitForElementToBeRemoved(() => queryByText("App Loading"), {
-      timeout: 500,
-    });
+    await waitForElementToBeRemoved(() => queryByText("App Loading"));
 
     await waitFor(() => expect(mountCounter).toHaveBeenCalledTimes(2));
   });
@@ -95,9 +93,7 @@ describe("Component Dependency Use Case", () => {
   test("Keep the Child component display count to a minimum", async () => {
     const { queryByText } = render(<Root />);
 
-    await waitForElementToBeRemoved(() => queryByText("Child Loading"), {
-      timeout: 500,
-    });
+    await waitForElementToBeRemoved(() => queryByText("Child Loading"));
 
     await waitFor(() => expect(mountCounter).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(childMountCounter).toHaveBeenCalledTimes(2));
@@ -107,9 +103,11 @@ describe("Component Dependency Use Case", () => {
     const { getByText, queryByText, queryAllByText } = render(<Root />);
     const cancelButton = getByText("Cancel");
 
-    setTimeout(() => fireEvent.click(cancelButton));
+    expect(queryByText("App Loading")).not.toBeNull();
 
-    await waitForElementToBeRemoved(() => queryByText("App Loading"));
+    fireEvent.click(cancelButton);
+
+    await waitFor(() => expect(queryByText("App Loading")).toBeNull());
 
     expect(queryByText("Child Loading")).toBe(null);
     expect(queryAllByText(/^Example/)).toHaveLength(0);

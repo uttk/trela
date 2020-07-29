@@ -112,9 +112,11 @@ describe("Multiple Use Case", () => {
     const cancelButton = getByText("Cancel");
     const label = /Loading User List \d/;
 
-    setTimeout(() => fireEvent.click(cancelButton));
+    expect(queryAllByText(label)).not.toHaveLength(0);
 
-    await waitForElementToBeRemoved(() => queryAllByText(label));
+    fireEvent.click(cancelButton);
+
+    await waitFor(() => expect(queryAllByText(label)).toHaveLength(0));
 
     mountCounters.forEach((mountCounter) => {
       expect(mountCounter).toBeCalledTimes(2);

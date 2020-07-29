@@ -88,9 +88,11 @@ describe("Simple Use Case", () => {
     const { getByText, queryByText, queryAllByText } = render(<Root />);
     const cancelButton = getByText("Cancel");
 
-    setTimeout(() => fireEvent.click(cancelButton));
+    expect(queryByText("Loading")).not.toBeNull();
 
-    await waitForElementToBeRemoved(() => queryByText("Loading"));
+    fireEvent.click(cancelButton);
+
+    await waitFor(() => expect(queryByText("Loading")).toBeNull());
 
     expect(mountCounter).toBeCalledTimes(2);
     expect(queryAllByText(/^Example/)).toHaveLength(0);
