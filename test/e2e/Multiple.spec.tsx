@@ -37,8 +37,6 @@ describe("Multiple Use Case", () => {
 
     mountCounters[id]();
 
-    console.log("mount == id == " + id);
-
     if (isLoading) return <p>Loading User List {id}</p>;
 
     return (
