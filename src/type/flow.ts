@@ -37,7 +37,7 @@ export interface FlowApi<S> {
 export type FlowRequest<S, A extends ApisBase> = (flow: Flow<S, A>) => void;
 
 export type FlowWrapApis<S, A extends ApisBase> = {
-  [K in keyof A]: () => FlowApi<S>;
+  [K in keyof A]: (...args: Parameters<A[K]>) => FlowApi<S>;
 };
 
 export interface FlowManager<S, A extends ApisBase> {
