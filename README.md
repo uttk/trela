@@ -9,85 +9,6 @@
 - The component view update considering component dependency
 - TypeScript friendly
 
-# To Be Developed
-
-Currently a feature under development.
-
-### Concurrent Mode Support
-
-Corresponds to the Concurrent Mode of react. Where specifications have not been decided yet, I will implement it as soon as it is decided.
-
-```jsx
-/**
- * @Note Source code under development ( content subject to change )
- */
-
-import React from "react";
-import { render } from "react-dom";
-import {
-  useTrela,
-  TrelaProvider,
-  TrelaSuspense,
-  createContextValue,
-} from "trela";
-
-const contextValue = createContextValue({
-  /* ... */
-});
-
-const Spinner = () => <div>Loading ...</div>;
-
-const Root = () => (
-  <TrelaProvider value={contextValue}>
-    <TrelaSuspense fallback={<Spinner />}>
-      <ExampleComponent />
-    </TrelaSuspense>
-  </TrelaProvider>
-);
-
-const ExampleComponent = () => {
-  const { apis } = useTrela();
-  const { anyApi } = apis;
-  const [state] = anyApi().once();
-
-  /* ... */
-};
-
-render(<Root />, document.getElementById("root"));
-```
-
-### Test Tools
-
-I am working on making a tool that can be used with jest or mocha to make testing easier.
-
-```jsx
-/**
- * @Note Source code under development ( content subject to change )
- */
-
-import { render, wait } from "any-testing-library";
-import { TrelaProvider, createMock } from "trela";
-import { ExampleCompoent } from "./ExampleComponent";
-
-describe("Example Test", () => {
-  test("Asynchronous processing test", async () => {
-    const mock = createMock({
-      apis: {
-        fetchUser: () => {},
-      },
-    });
-
-    render(
-      <TrelaProvider value={mock}>
-        <ExampleCompoent />
-      </TrelaProvider>
-    );
-
-    await wait(() => expect(mock.fetchUser.complite).toBeTruthy());
-  });
-});
-```
-
 # Install
 
 ```
@@ -160,6 +81,12 @@ const Root = () => (
 
 render(<Root />, document.getElementById("app"));
 ```
+
+# Supports
+
+You can ask us from the following URL. If you have any questions, please feel free😉
+
+- [Discord](https://discord.gg/4MfGQ4N)
 
 # APIs
 
