@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/46495635/91637609-a9764e80-ea44-11ea-8ece-2d96525e58da.png" alt="trela icon"/>
+</p>
+
 # Trela
 
 `Trela` is a framework for handling simple asynchronous processing and store management with react.
