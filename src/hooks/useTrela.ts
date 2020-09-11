@@ -1,64 +1,83 @@
-import { useContext } from "react";
+import { useContext, Context } from "react";
 import { TrelaContext } from "../context";
+import { createFlowApi } from "../elements/flow";
 import {
+  createSeriesPromise,
+  createParallelPromise,
+} from "../elements/promise";
+import {
+  FlowApi,
   ApisBase,
-  Selector,
   TrelaApi,
-  FlowWrapApis,
+  FlowRequest,
+  TrelaWrapApis,
   TrelaContextValue,
 } from "../type";
 import { useDependency } from "./useDependency";
 
-export const useTrela = <S, A extends ApisBase>(): TrelaApi<S, A> => {
-  const context = useContext<TrelaContextValue<S, A>>(TrelaContext);
-  const dependency = useDependency(context);
-  const {
-    apis,
-    store,
-    flowMg,
-    utils: {
-      setup,
-      createFlowApi,
-      createApiRequest,
-      createSeriesRequest,
-      createParallelRequest,
-    },
-  } = context;
+export const useTrela = <A extends ApisBase>(
+  context: Context<TrelaContextValue<A>> = TrelaContext
+): TrelaApi<A> => {
+  const { apiStore, flowStore, dependencyStore, dispatch } = useContext(
+    context
+  );
+
+  const { flowKeys } = flowStore;
+  const dependency = useDependency(dependencyStore);
+
+  const createFlowRequest = <R>(
+    key: string,
+    createPromise: () => Promise<R>
+  ): FlowRequest<R> => {
+    const cache = flowKeys.get(key);
+    const id = cache || flowKeys.size + 1;
+
+    flowKeys.set(key, id);
+
+    return {
+      id,
+      action: "none",
+      fromDependency: dependency.id,
+      createPromise,
+    };
+  };
 
   return {
-    apis: Object.keys(apis).reduce<FlowWrapApis<S, A>>((wrapApis, apiName) => {
+    apis: apiStore.apiKeys.reduce<TrelaWrapApis<A>>((wrapApis, name) => {
       return {
         ...wrapApis,
 
-        [apiName]: (...args: Parameters<A[keyof A]>) => {
-          const id = flowMg.createId(apiName + JSON.stringify(args));
-          const flow = flowMg.createFlow(id, createApiRequest(apiName, args));
+        [name]: (...args: Parameters<A[keyof A]>) => {
+          const key = `${name}${JSON.stringify(args)}`;
 
-          return createFlowApi(flow, () => setup(flow, dependency));
+          return createFlowApi(
+            createFlowRequest(key, () => apiStore.apis[name](...args)),
+            dispatch
+          );
         },
       };
-    }, {} as FlowWrapApis<S, A>),
+    }, {} as TrelaWrapApis<A>),
 
-    steps: (flowApis) => {
-      const id = flowMg.createId("s:" + flowApis.map((v) => v.id).join(""));
-      const flow = flowMg.createFlow(id, createSeriesRequest(flowApis));
+    steps: <F extends readonly FlowApi<A>[]>(flowApis: [...F]) => {
+      const ids = flowApis.map((v) => v.id);
 
-      return createFlowApi(flow, () => setup(flow, dependency));
+      return createFlowApi(
+        createFlowRequest(`s:${ids.join("")}`, () =>
+          createSeriesPromise(flowApis, dispatch)
+        ),
+        dispatch
+      );
     },
 
-    all: (flowApis) => {
-      const id = flowMg.createId("p:" + flowApis.map((v) => v.id).join(""));
-      const flow = flowMg.createFlow(id, createParallelRequest(flowApis));
+    all: <F extends readonly FlowApi<A>[]>(flowApis: [...F]) => {
+      const ids = flowApis.map((v) => v.id);
 
-      return createFlowApi(flow, () => setup(flow, dependency));
-    },
-
-    getState: <R>(selector: Selector<S, R>): R => {
-      const [state] = selector(store.getState());
-
-      dependency.selectors.add(selector);
-
-      return state;
+      return createFlowApi(
+        createFlowRequest(`s:${ids.join("")}`, () =>
+          createParallelPromise(flowApis, dispatch)
+        ),
+        dispatch
+      );
     },
   };
 };
