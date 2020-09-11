@@ -1,41 +1,29 @@
 import {
   render,
   waitFor,
-  waitForElementToBeRemoved,
   fireEvent,
+  waitForElementToBeRemoved,
 } from "@testing-library/react";
 import * as React from "react";
-import {
-  useTrela,
-  TrelaProvider,
-  TrelaContextValue,
-  createContextValue,
-} from "../../src/index";
-import {
-  apis,
-  reducer,
-  ApisType,
-  initState,
-  StateType,
-  responseMockData,
-} from "./utils";
+import { apis, ApisType, responseMockData } from "./utils";
+import { TrelaContext, createTrelaContext } from "@/index";
 
 describe("Parallel Use Case", () => {
-  let contextValue: TrelaContextValue<any, any>;
+  let Context: TrelaContext<ApisType>;
   let mountCounter: jest.Mock<any, any>;
 
   beforeEach(() => {
     mountCounter = jest.fn();
-    contextValue = createContextValue({ apis, reducer, initState });
+    Context = createTrelaContext({ apis });
   });
 
   const App = () => {
-    const { all, apis } = useTrela<StateType, ApisType>();
+    const { all, apis } = Context.useTrela();
     const { checkLogin, fetchUsers } = apis;
 
     const ref = all([checkLogin(), fetchUsers()]);
 
-    const [{ isLogin, users }, isLoading] = ref.once();
+    const [[isLogin, users], isLoading] = ref.default([false, []]).read();
 
     mountCounter();
 
@@ -54,15 +42,15 @@ describe("Parallel Use Case", () => {
         </ul>
 
         <button onClick={() => ref.cancel()}>Cancel</button>
-        <button onClick={() => ref.forceStart()}>Refetch</button>
+        <button onClick={() => ref.start()}>Refetch</button>
       </div>
     );
   };
 
   const Root = () => (
-    <TrelaProvider value={contextValue}>
+    <Context.Provider>
       <App />
-    </TrelaProvider>
+    </Context.Provider>
   );
 
   test("Can be displayed Loading Status", async () => {
