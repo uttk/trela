@@ -37,7 +37,7 @@ const apis = {
     const ref = await fetch("__YOUR_API_URL__");
     const json = await ref.json();
 
-    return json; // { name: "Johon", age: 10 }
+    return json; // { name: "user name", age: 30 }
   },
 }
 
