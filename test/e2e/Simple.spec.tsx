@@ -5,34 +5,22 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import * as React from "react";
-import {
-  useTrela,
-  TrelaProvider,
-  TrelaContextValue,
-  createContextValue,
-} from "../../src/index";
-import {
-  apis,
-  reducer,
-  ApisType,
-  initState,
-  StateType,
-  responseMockData,
-} from "./utils";
+import { createTrelaContext, TrelaContext } from "../../src/index";
+import { apis, responseMockData, ApisType } from "./utils";
 
 describe("Simple Use Case", () => {
-  let contextValue: TrelaContextValue<any, any>;
+  let Context: TrelaContext<ApisType>;
   let mountCounter: jest.Mock<any, any>;
 
   beforeEach(() => {
     mountCounter = jest.fn();
-    contextValue = createContextValue({ apis, reducer, initState });
+    Context = createTrelaContext({ apis });
   });
 
   const App = () => {
-    const { apis } = useTrela<StateType, ApisType>();
+    const { apis } = Context.useTrela();
     const { fetchUsers } = apis;
-    const [{ users }, isLoading] = fetchUsers().once();
+    const [users, isLoading] = fetchUsers().read();
 
     mountCounter();
 
@@ -43,7 +31,7 @@ describe("Simple Use Case", () => {
         <h1>Users</h1>
 
         <ul>
-          {users.map((user, i) => (
+          {(users || []).map((user, i) => (
             <li key={`user-${i}`}>{user.name}</li>
           ))}
         </ul>
@@ -55,9 +43,9 @@ describe("Simple Use Case", () => {
   };
 
   const Root = () => (
-    <TrelaProvider value={contextValue}>
+    <Context.Provider>
       <App />
-    </TrelaProvider>
+    </Context.Provider>
   );
 
   test("Display User List", async () => {

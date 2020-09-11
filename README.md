@@ -30,57 +30,39 @@ $> yarn add trela
 ```jsx
 import React from "react";
 import { render } from "react-dom";
-import { createContextValue, TrelaProvider, useTrela } from "trela";
+import { createTrelaContext } from "trela";
+
+const apis = {
+  fetchUser: async () => {
+    const ref = await fetch("__YOUR_API_URL__");
+    const json = await ref.json();
+
+    return json; // { name: "Johon", age: 10 }
+  },
+}
+
+const { Provider, useTrela } = createTrelaContext({ apis });
 
 const App = () => {
   const { apis } = useTrela();
-  const { fechUser } = apis;
-  const [state, isPending] = fetchUser().once();
-  const { user } = state;
+  const [user, isPending] = apis.fetchUser().read();
 
   return (
     <div>
       {isPending ? <p>Now Loading ...</p> : null}
 
       <h1>Current User</h1>
-      <p>Name : {user.name}</p>
-      <p>Age : {user.age || "Not set yet"}</p>
+      <p>Name : {user?.name || "No name"}</p>
+      <p>Age : {user.age || "No age"}</p>
     </div>
   );
 };
 
-const contextValue = createContextValue({
-  initState: {
-    user: {
-      name: "Not set yet",
-      age: NaN,
-    },
-  },
-
-  reducer: (state, action) => {
-    switch (action.type) {
-      case "fetchUser":
-        return { ...state, user: action.payload };
-
-      default:
-        return state;
-    }
-  },
-
-  apis: {
-    fetchUser: async () => {
-      const ref = await fetch("__YOUR_API_URL__");
-      const json = await ref.json();
-
-      return json;
-    },
-  },
-});
 
 const Root = () => (
-  <TrelaProvider value={contextValue}>
+  <Provider>
     <App />
-  </TrelaProvider>
+  </Provider>
 );
 
 render(<Root />, document.getElementById("app"));
@@ -92,184 +74,48 @@ You can ask us from the following URL. If you have any questions, please feel fr
 
 - [Discord](https://discord.gg/4MfGQ4N)
 
-# APIs
+# API
 
-## TrelaProvider
+## createTrelaContext
 
-The Provider Component of `trela`. For the value prop, specify the return value of the createContextValue function.
-
-**Type : ReactComponent**
+A function to create a Trela Context. The return value is an object that contains the Provider component and the useTrela function.
 
 **Example**
 
 ```jsx
-const contextValue = createContextValue({
+const { Provider, useTrela } = createTrelaContext({
   /* ... */
 });
-
-const RootComponent = () => (
-  <TrelaProvider value={contextValue}>
-    {/* YOUR ANY COMPONENTS */}
-  </TrelaProvider>
-);
 ```
 
-## createContextValue
+## Provider Component
 
-Create a value to pass to TrelaProvider.
-
-**Type : (options: TrelaOptions) => ContextValue**
-
-**Example**
-
-```javascript
-const contextValue = createContextValue({
-  /**
-   * @required
-   * @type { any }
-   * @description
-   * Initial value of store
-   */
-  initState: {
-    isLogin: false,
-
-    user: {
-      name: "Not set yet",
-      age: NaN,
-    },
-  },
-
-  /**
-   * @required
-   * @type { <S>(state: S, action: { type: string; payload: any }) => S }
-   * @description
-   * reducer that resolves action
-   */
-  reducer: (state, action) => {
-    switch (actin.type) {
-      case "fetchUser":
-        return { ...state, user: action.payload };
-
-      case "isLogin":
-        return { ...state, isLogin: action.payload };
-
-      default:
-        return state;
-    }
-  },
-
-  /**
-   * @required
-   * @type { { [key:string]: (...args:any[]) => Promise<any> } }
-   * @description
-   * Define asynchronous actions
-   */
-  apis: {
-    fetchUser: async () => {
-      const ref = await fetch("__YOUR_API_URL__");
-      const user = await ref.json();
-
-      return user;
-    },
-
-    isLogin: async () => {
-      const ref = await fetch("__YOUR_API_URL__");
-      const { isLogin } = await ref.json();
-
-      return { isLogin };
-    },
-  },
-});
-```
-
-## useStore
-
-Custom Hooks to get the Store.
-
-**Type : () => StoreClass**
+A React component for providing Trela's API. Must be set to the root component of your app.
 
 **Example**
 
 ```jsx
-const ExampleComponent = () => {
-  const store = useStore();
-  const state = store.getState();
+const { Provider } = createTrelaContext(/* ... */)
 
-  useEffect(() => {
-    store.subscribe((latestState) => {
-      /* ... */
-    });
-  }, []);
+const App = () => {/* ... */}
 
-  return (
-    <button
-      onClick={() =>
-        store.dispatch({
-          /* ... */
-        })
-      }
-    >
-      dispatch
-    </button>
-  );
-};
+const Root = () => (
+  <Provider>
+    <App />
+  </Provider>
+)
 ```
+
 
 ## useTrela
 
-`useTrela` is React Custom Hooks what returns trela apis.
-
-**Type : \<StoreType, ApisType\>() => TrelaAPIs**
+`useTrela` is React Custom Hooks what returns trela apis. The types are defined by TypeScript, and it is possible to execute APIs in a type-safe manner.
 
 **Example**
 
 ```jsx
 const ExampleComponent = () => {
-  const TrelaApis = useTrela();
-
-  /* ... */
-};
-```
-
-Also, if you can use TypeScript, it is convenient to specify generics.
-
-```tsx
-const initState = {
-  name: "",
-  age: 0,
-};
-
-const apis = {
-  anyApi: async () => {
-    /* ... */
-  },
-};
-
-type StateType = typeof initState;
-type ApisType = typeof apis;
-
-const ExampleComponent: React.FC = () => {
-  const TrelaApis = useTrela<StateType, ApisType>();
-
-  /* ... */
-};
-
-/* ... */
-```
-
-## getState
-
-Returns the store values and listens to the store value.
-This function returns the 0th value in the array, when 1th value in the array is True, the view will be updated when the Store value is updated.
-
-**Type : \<S\>( ( state : StateType ) => [S] | [S, boolean] ) => S**
-
-**Example**
-
-```jsx
-const ExampleComponent = () => {
-  const { getState } = useTrela();
-  const selectedState = getState((state) => [state, true]);
+  const { apis, steps, all } = useTrela();
 
   /* ... */
 };
@@ -277,24 +123,18 @@ const ExampleComponent = () => {
 
 ## apis
 
-`apis` is an object that wrapped the `apis` object defined by the createContextValue function.
-The function in the object takes the same arguments as the function you defined, but the return value is Flow instance.
-Also, Return the same Flow instance when the passed arguments are the same.
-
-**Type : { [ key : string ] : (args: ...any[]) => Flow }**
+`apis` is an object that wraps the value of the `apis` property passed to the createTrelaContext function. Note that the same function is contained inside, but the behavior is different.
 
 **Example**
 
 ```jsx
-const contextValue = createContextValue({
-  /* ... */
-
+const { Provider, useTrela } = createContextValue({
   apis: {
-    fetchUser: async (uid) => {
+    fetchUser: async (uid: number): User => {
       /* ... */
     },
 
-    isLogin: async () => {
+    isLogin: async (uid) => {
       /* ... */
     },
   },
@@ -303,17 +143,22 @@ const contextValue = createContextValue({
 /* ... */
 
 const ExampleComponent = () => {
-  const { steps, apis } = useTrela();
+  const { apis } = useTrela();
   const { fetchUser, isLogin } = apis;
+  const user_id = 100;
 
-  const loginFlow = isLogin();
+  /**
+   * @note Asynchronous processing does not start at this point
+   * @note Also, You can pass arguments to the original fetchUser function
+   */
+  const fetchUserRef = fetchUser(user_id); 
 
-  const userFlow = fetchUser("example uid");
-  const userFlow2 = fetchUser("example uid");
-  const userFlow3 = fetchUser("other uid");
-
-  // userFlow === userFlow2 // true
-  // userFlow === userFlow3 // false
+  /**
+   * @note Perform asynchronous processing
+   * @return {User | null} fetchData - Contains the result of asynchronous processing or null
+   * @return {boolean} isPending - Flag of whether asynchronous processing is running
+   */
+  const [fetchData, isPending] = fetchUserRef.read();
 
   /* ... */
 };
@@ -322,8 +167,6 @@ const ExampleComponent = () => {
 ## steps
 
 Execute asynchronous actions serially.
-
-**Type : ( flows : Flow[] ) => Flow**
 
 **Example**
 
@@ -336,7 +179,7 @@ const ExampleComponent = () => {
   // In this example: anyApi -> anyApi2
   const ref = steps([anyApi(), anyApi2("any arguments")]);
 
-  const [state, isPending] = ref.once();
+  const [state, isPending] = ref.read();
 
   /* ... */
 };
@@ -345,8 +188,6 @@ const ExampleComponent = () => {
 ## all
 
 Execute asynchronous actions in parallel.
-
-**Type : ( flows : Flow[] ) => Flow**
 
 **Example**
 
@@ -358,37 +199,32 @@ const ExampleComponent = () => {
   // Execute asynchronous actions in parallel
   const ref = all([anyApi(), anyApi2("any arguments")]);
 
-  const [state, isPending] = ref.once();
+  const [state, isPending] = ref.read();
 
   /* ... */
 };
 ```
 
-## Flow.once
+## read
 
 Execute asynchronous action only once and update the view when the action is complete. Also, This function can be directly written to the component field.
 
-The return value is an array, and the 0th value is latest State value, the 1st value is boolean indicating whether processing is being executed.
-
-**Type : () => [StateType, boolean]**
+The return value is an array and the 0th value is the result of the asynchronous action or null, the 1st value is boolean indicating whether processing is being executed.
 
 **Example**
 
 ```jsx
 const ExampleComponent = () => {
   const { apis } = useTrela();
-  const { anyAPI } = apis;
-  const [state, isPending] = anyAPI("any arguments").once();
+  const [state, isPending] = apis.anyAPI("any arguments").read();
 
   /* ... */
 };
 ```
 
-## Flow.start
+## start
 
 Execute asynchronous action. Skip the process when the action is running.
-
-**Type : () => void**
 
 **Example**
 
@@ -417,44 +253,18 @@ const ExampleComponent = () => {
 /* ... */
 ```
 
-## Flow.forceStart
-
-Force an asynchronous action. Also, the asynchronous action being executed will be canceled when the first argument is true.
-
-**Type : () => void**
-
-**Example**
-
-```jsx
-const ExampleComponent = () => {
-  const { apis } = useTrela();
-  const { anyAPI } = apis;
-
-  useEffect(() => {
-    anyAPI("any arguments").forceStart();
-  }, []);
-
-  /* ... */
-};
-
-/* ... */
-```
-
-## Flow.cancel
+## cancel
 
 Cancels a running asynchronous action.
 
-**Type : () => void**
-
 **Example**
 
 ```jsx
 const ExampleComponent = () => {
   const { apis } = useTrela();
-  const { anyAPI } = apis;
-  const ref = anyAPI("any arguments");
+  const ref = apis.anyAPI("any arguments");
 
-  const [state, isPending] = ref.once();
+  const [state, isPending] = ref.read();
 
   const onClick = () => {
     ref.cancel();
@@ -464,7 +274,7 @@ const ExampleComponent = () => {
     <>
       {/* ... */}
 
-      <button onClick={onClick}> Cancel Action </button>
+      <button onClick={onClick}> Cancel asynchronous action </button>
 
       {/* ... */}
     </>
@@ -474,99 +284,39 @@ const ExampleComponent = () => {
 /* ... */
 ```
 
-## Flow.error
+## default
 
-Raises an error to a running asynchronous action.
-
-**Type : ( payload? : Error ) => void**
+Sets the default value for asynchronous actions. You can use this function to prevent null from entering the communication result.
 
 **Example**
 
 ```jsx
 const ExampleComponent = () => {
   const { apis } = useTrela();
-  const { anyAPI } = apis;
-  const ref = anyAPI("any arguments");
+  const ref = apis.anyAPI("any arguments");
 
-  const [state, isPending] = ref.once();
+  /**
+   * @return {string} result - The default function eliminates nulls and converges to a string type
+   */
+  const [result, isPending] = ref.default("default Value").read();
 
-  const onClick = () => {
-    const error = new Error("anything");
-    ref.error(error);
-  };
-
-  return (
-    <>
-      {/* ... */}
-
-      <button onClick={onClick}> Send an Error </button>
-
-      {/* ... */}
-    </>
-  );
+  /* ... */
 };
 
 /* ... */
 ```
 
-## Flow.complete
+## only
 
-Completes the running asynchronous action.
-
-**Type : () => void**
+Running the API from the only property allows you to perform asynchronous actions so that the component views is not updated
 
 **Example**
 
 ```jsx
 const ExampleComponent = () => {
   const { apis } = useTrela();
-  const { anyAPI } = apis;
-  const ref = anyAPI("any arguments");
-
-  const [state, isPending] = ref.once();
-
-  const onClick = () => {
-    ref.complete();
-  };
-
-  return (
-    <>
-      {/* ... */}
-
-      <button onClick={onClick}> Complete Action </button>
-
-      {/* ... */}
-    </>
-  );
-};
-
-/* ... */
-```
-
-## Flow.addEventListener
-
-Receive status of asynchronous action.
-
-**Type : ( type : FlowStatus, callback : () => void ) => removeListener**
-
-**Example**
-
-```jsx
-const ExampleComponent = () => {
-  const { apis } = useTrela();
-  const { anyAPI } = apis;
-  const ref = anyAPI("any arguments");
-
-  const [state, isPending] = ref.once();
-
-  useEffect(() => {
-    // @type FlowStatus : "started" | "cancel" | "error" | "finished"
-    const removeListener = ref.addEventListener("started", () => {
-      /* ... */
-    });
-
-    return removeListener;
-  }, []);
+  const ref = apis.anyAPI("any arguments");
+  const [result, isPending] = ref.only.read();
 
   /* ... */
 };

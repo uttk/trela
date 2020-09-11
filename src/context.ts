@@ -1,13 +1,12 @@
 import { createContext } from "react";
-import { TrelaContextValue } from "./type";
+import { TrelaContextValue, TrelaMode } from "./type";
 
-export const defaultContextValue: TrelaContextValue<any, any> = {
-  apis: {} as any,
-  utils: {} as any,
-  store: {} as any,
-  flowMg: {} as any,
-  dependencyMg: {} as any,
-  isDefault: true,
+export const defaultContextValue: TrelaContextValue<any> = {
+  mode: TrelaMode.conventional,
+  apiStore: {} as any,
+  flowStore: {} as any,
+  dependencyStore: {} as any,
+  dispatch: (() => void 0) as any,
 };
 
 export const TrelaContext = createContext(defaultContextValue);

@@ -1,31 +1,36 @@
-import { DependencyManagerClass } from "../elements/dependencyManager";
-import { FlowManagerClass } from "../elements/flowManager";
-import { StoreClass } from "../elements/store";
-import { createApiRequest } from "../request/createApiRequest";
-import { createParallelRequest } from "../request/createParallelRequest";
-import { createSeriesRequest } from "../request/createSeriesRequest";
-import { ApisBase, ContextOptions, TrelaContextValue } from "../type";
-import { createFlowApi } from "./createFlowApi";
-import { createSetup } from "./createSetup";
+import { createDependencyStore } from "../elements/dependency";
+import { createFlowStore } from "../elements/flow";
+import { createRelationStore } from "../elements/relation";
+import {
+  ApiStore,
+  ApisBase,
+  TrelaMode,
+  TrelaContextValue,
+  TrelaContextOptions,
+} from "../type";
+import { createDispatch } from "./createDispatch";
 
-export const createContextValue = <S, A extends ApisBase>(
-  options: ContextOptions<S, A>
-): TrelaContextValue<S, A> => {
-  const store = new StoreClass(options);
-  const flowMg = new FlowManagerClass(store);
-  const dependencyMg = new DependencyManagerClass();
+export const createContextValue = <A extends ApisBase>(
+  options: TrelaContextOptions<A>
+): TrelaContextValue<A> => {
+  const { apis } = options;
+
+  const apiStore: ApiStore<A> = {
+    apis,
+    apiKeys: Object.keys(apis),
+  };
+
+  const flowStore = createFlowStore();
+  const dependencyStore = createDependencyStore();
+  const relationStore = createRelationStore(dependencyStore);
 
   return {
-    apis: options.apis,
-    store,
-    flowMg,
-    dependencyMg,
-    utils: {
-      setup: createSetup(dependencyMg),
-      createFlowApi,
-      createApiRequest,
-      createSeriesRequest,
-      createParallelRequest,
-    },
+    mode: TrelaMode.conventional,
+
+    apiStore,
+    flowStore,
+    dependencyStore,
+
+    dispatch: createDispatch({ flowStore, dependencyStore, relationStore }),
   };
 };
