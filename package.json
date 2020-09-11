@@ -1,6 +1,6 @@
 {
   "name": "trela",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Store management framework that simplifies asynchronous processing🍭",
   "main": "lib/index.js",
   "types": "types/index.d.ts",
