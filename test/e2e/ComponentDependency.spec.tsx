@@ -5,37 +5,25 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import * as React from "react";
-import {
-  useTrela,
-  TrelaProvider,
-  createContextValue,
-  TrelaContextValue,
-} from "../../src/index";
-import {
-  apis,
-  reducer,
-  ApisType,
-  initState,
-  StateType,
-  responseMockData,
-} from "./utils";
+import { TrelaContext, createTrelaContext } from "../../src/index";
+import { apis, ApisType, responseMockData } from "./utils";
 
 describe("Component Dependency Use Case", () => {
-  let contextValue: TrelaContextValue<any, any>;
+  let Context: TrelaContext<ApisType>;
   let mountCounter: jest.Mock<any, any>;
   let childMountCounter: jest.Mock<any, any>;
 
   beforeEach(() => {
     mountCounter = jest.fn();
     childMountCounter = jest.fn();
-    contextValue = createContextValue({ apis, reducer, initState });
+    Context = createTrelaContext({ apis });
   });
 
   const UserList = () => {
-    const { steps, apis } = useTrela<StateType, ApisType>();
+    const { steps, apis } = Context.useTrela();
     const { checkLogin, fetchUsers } = apis;
     const ref = steps([checkLogin(), fetchUsers()]);
-    const [{ users }, isLoading] = ref.once();
+    const [[, users], isLoading] = ref.default([false, []]).read();
 
     childMountCounter();
 
@@ -44,7 +32,7 @@ describe("Component Dependency Use Case", () => {
         {isLoading ? <p>Child Loading</p> : null}
 
         <ul>
-          {users.map((user, i) => (
+          {users?.map((user, i) => (
             <li key={`user-list-${i}`}>{user.name}</li>
           ))}
         </ul>
@@ -53,10 +41,10 @@ describe("Component Dependency Use Case", () => {
   };
 
   const App = () => {
-    const { steps, apis } = useTrela<StateType, ApisType>();
+    const { steps, apis } = Context.useTrela();
     const { checkLogin, fetchUsers } = apis;
     const ref = steps([checkLogin(), fetchUsers()]);
-    const [{ isLogin, users }, isLoading] = ref.once();
+    const [[isLogin, users], isLoading] = ref.default([false, []]).read();
 
     mountCounter();
 
@@ -66,20 +54,20 @@ describe("Component Dependency Use Case", () => {
 
         <p>{isLogin ? "Logged in" : "Not logged in yet"}</p>
 
-        <p>User Count : {users.length}</p>
+        <p>User Count : {users?.length || 0}</p>
 
         <UserList />
 
         <button onClick={() => ref.cancel()}>Cancel</button>
-        <button onClick={() => ref.forceStart()}>Refetch</button>
+        <button onClick={() => ref.start()}>Refetch</button>
       </div>
     );
   };
 
   const Root = () => (
-    <TrelaProvider value={contextValue}>
+    <Context.Provider>
       <App />
-    </TrelaProvider>
+    </Context.Provider>
   );
 
   test("Keep the App component display count to a minimum", async () => {
