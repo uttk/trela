@@ -1,47 +1,57 @@
-import { Store } from "./store";
-import { ApisBase } from "./util";
+import { DependencyId } from "./dependency";
+import { ExcludeNull, PromiseCreator } from "./util";
 
-export type FlowStatus = "none" | "started" | "finished" | "cancel" | "error";
+export type FlowTypes = "api" | "series" | "parallel";
 
-export interface Flow<S, A extends ApisBase> {
-  readonly id: number;
-  currentError: Error;
-  status: FlowStatus;
+export type FlowActionTypes = "none" | "read" | "start" | "cancel";
 
-  getStore(): Store<S, A>;
-  start(): void;
-  cancel(): void;
-  complete(): void;
-  error(payload?: Error): void;
-  addEventListener(type: FlowStatus, callback: () => void): () => void;
+export type FlowId = number;
+
+export interface Flow<R> {
+  id: FlowId;
+  result: R | null;
+  isFirst: boolean;
+  isProgress: boolean;
+  promise: Promise<R | null> | null;
+
+  cancel: (() => void) | null;
+  createPromise: PromiseCreator<R | null>;
 }
 
-export interface FlowApi<S> {
-  readonly id: Flow<S, any>["id"];
+export interface FlowRequest<R> {
+  id: FlowId;
+  action: FlowActionTypes;
+  fromDependency: DependencyId | null;
+  createPromise: PromiseCreator<R>;
+}
 
-  once(): [S, boolean];
+export interface FlowApi<R, D = ExcludeNull<R>> {
+  readonly id: FlowId;
+
+  default(defaultValue: D): Omit<FlowApi<D>, "default">;
+
+  read(): [R, boolean];
   start(): void;
   cancel(): void;
-  forceStart(): void;
-  error(payload?: Error): void;
-  addEventListener(type: FlowStatus, callback: () => void): () => void;
+  getRequest: () => FlowRequest<R>;
+
   only: {
-    once(): [S, boolean];
+    read(): [R, boolean];
     start(): void;
     cancel(): void;
-    forceStart(): void;
-    error(payload?: Error): void;
   };
 }
 
-export type FlowRequest<S, A extends ApisBase> = (flow: Flow<S, A>) => void;
+export type DefaultFlowApi = FlowApi<any>;
 
-export type FlowWrapApis<S, A extends ApisBase> = {
-  [K in keyof A]: (...args: Parameters<A[K]>) => FlowApi<S>;
+export type FlowDispatch = <R>(request: FlowRequest<R>) => Flow<R>;
+
+export type GetFlowResult<F> = F extends Flow<infer T> ? T : never;
+
+export type GetFlowApiResultList<FL extends readonly DefaultFlowApi[]> = {
+  [K in keyof FL]: ExcludeNull<FL[K] extends FlowApi<infer R> ? R : never>;
 };
 
-export interface FlowManager<S, A extends ApisBase> {
-  createId(flowId: string): number;
-  getFlow(flowId: Flow<S, A>["id"]): Flow<S, A> | void;
-  createFlow(id: number, request: FlowRequest<S, A>): Flow<S, A>;
-}
+export type GetFlowResultList<FL extends readonly Flow<any>[]> = {
+  [K in keyof FL]: GetFlowResult<FL[K]>;
+};

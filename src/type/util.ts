@@ -1,30 +1,22 @@
-export interface ApisBase {
+export type ApisBase = {
   [key: string]: (...args: any[]) => Promise<any>;
-}
+};
 
-export type Reducer<S, A extends ApisBase> = (
-  state: S,
-  action: CreateAction<keyof A, A>
-) => S;
-
-export type CreateAction<AK, A extends ApisBase> = AK extends keyof A
-  ? {
-      type: AK;
-      payload: ResolvePromise<A[AK]>;
-    }
-  : never;
+/* eslint-disable no-undef, no-unused-vars, @typescript-eslint/no-unused-vars */
 
 export type ResolvePromise<A extends ApisBase[string]> = A extends (
   ...args: any
-) => Promise<infer T>
-  ? T
+) => Promise<infer C>
+  ? C
   : never;
 
-export type Selector<S, R> = (state: S) => [R] | [R, boolean];
+/* eslint-enable no-undef, no-unused-vars, @typescript-eslint/no-unused-vars */
 
 export type CreateApiRequest<A extends ApisBase, AK extends keyof A> = {
-  request: AK;
-  payload: Parameters<A[AK]>;
+  name: AK;
+  args: Parameters<A[AK]>;
 };
 
-export type CreateActionsType<A extends ApisBase> = CreateAction<keyof A, A>;
+export type ExcludeNull<R> = Exclude<R, null>;
+
+export type PromiseCreator<R> = () => Promise<R>;

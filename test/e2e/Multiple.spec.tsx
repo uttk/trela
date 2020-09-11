@@ -5,35 +5,23 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import * as React from "react";
-import {
-  useTrela,
-  TrelaProvider,
-  TrelaContextValue,
-  createContextValue,
-} from "../../src/index";
-import {
-  apis,
-  reducer,
-  ApisType,
-  initState,
-  StateType,
-  responseMockData,
-} from "./utils";
+import { apis, ApisType, responseMockData } from "./utils";
+import { TrelaContext, createTrelaContext } from "@/index";
 
 describe("Multiple Use Case", () => {
   const ComponentCount = 3;
-  let contextValue: TrelaContextValue<StateType, ApisType>;
+  let Context: TrelaContext<ApisType>;
   let mountCounters: Array<jest.Mock<void, []>>;
 
   beforeEach(() => {
     mountCounters = new Array(ComponentCount).fill(0).map(() => jest.fn());
-    contextValue = createContextValue({ apis, reducer, initState });
+    Context = createTrelaContext({ apis });
   });
 
   const DisplayUserList: React.FC<{ id: number }> = ({ id }) => {
-    const { apis } = useTrela<StateType, ApisType>();
+    const { apis } = Context.useTrela();
     const { fetchUsers } = apis;
-    const [{ users }, isLoading] = fetchUsers().once();
+    const [users, isLoading] = fetchUsers().read();
 
     mountCounters[id]();
 
@@ -44,7 +32,7 @@ describe("Multiple Use Case", () => {
         <h1>User List {id}</h1>
 
         <ul>
-          {users.map((user, i) => (
+          {users?.map((user, i) => (
             <li key={`user-${i}`}>{user.name}</li>
           ))}
         </ul>
@@ -53,7 +41,7 @@ describe("Multiple Use Case", () => {
   };
 
   const App = () => {
-    const { apis } = useTrela<StateType, ApisType>();
+    const { apis } = Context.useTrela();
     const { fetchUsers } = apis;
     const ref = fetchUsers();
 
@@ -74,9 +62,9 @@ describe("Multiple Use Case", () => {
   };
 
   const Root = () => (
-    <TrelaProvider value={contextValue}>
+    <Context.Provider>
       <App />
-    </TrelaProvider>
+    </Context.Provider>
   );
 
   test("Display User List", async () => {
