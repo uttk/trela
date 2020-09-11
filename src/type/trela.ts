@@ -1,4 +1,4 @@
-import { FunctionComponent, SuspenseProps } from "react";
+import { FunctionComponent } from "react";
 import { FlowApi, FlowDispatch, GetFlowApiResultList } from "./flow";
 import { ApiStore, DependencyStore, FlowStore, RelationStore } from "./store";
 import { ApisBase, ResolvePromise } from "./util";
