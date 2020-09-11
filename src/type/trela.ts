@@ -20,7 +20,6 @@ export interface TrelaContextValue<A extends ApisBase> {
 
 export interface TrelaContext<A extends ApisBase> {
   Provider: FunctionComponent;
-  Suspence: FunctionComponent<SuspenseProps>;
   useTrela: () => TrelaApi<A>;
 }
 
