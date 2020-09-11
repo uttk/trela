@@ -1,28 +1,9 @@
-import { Flow } from "./flow";
-import { Selector } from "./util";
+export type DependencyId = number;
 
-export interface Dependency<S> {
-  readonly id: number;
+export interface Dependency {
+  readonly id: DependencyId;
   readonly updateComponentView: () => void;
 
   didMount: boolean;
-  selectors: Set<Selector<any, any>>;
-  parents: Map<Dependency<S>["id"], Dependency<S>>;
-
-  init(): void;
-  isListenState(state: S): boolean;
-  isParent(id: Dependency<S>["id"]): boolean;
-  bookUpdate(id: Flow<any, any>["id"]): void;
-  hasFlowId(flowId: Flow<any, any>["id"]): boolean;
-  canUpdate(flowId: Flow<any, any>["id"]): boolean;
-  updateParents(parents: Dependency<S>["parents"]): void;
-}
-
-export interface DependencyManager<S> {
-  listenFlow(flow: Flow<S, any>): void;
-  tryUpdateView(flow: Flow<S, any>): void;
-  createDependency(updateComponentView: () => void): Dependency<S>;
-  registerDependency(dependency: Dependency<S>): void;
-  updateDependency(dependency: Dependency<S>): void;
-  deleteDependency(dependency: Dependency<S>): void;
+  parents: Map<Dependency["id"], Dependency>;
 }
