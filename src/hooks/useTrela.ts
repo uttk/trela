@@ -59,10 +59,8 @@ export const useTrela = <A extends ApisBase>(
     }, {} as TrelaWrapApis<A>),
 
     steps: <F extends readonly FlowApi<A>[]>(flowApis: [...F]) => {
-      const ids = flowApis.map((v) => v.id);
-
       return createFlowApi(
-        createFlowRequest(`s:${ids.join("")}`, () =>
+        createFlowRequest(`s:${flowApis.map((v) => v.id).join("")}`, () =>
           createSeriesPromise(flowApis, dispatch)
         ),
         dispatch
@@ -70,10 +68,8 @@ export const useTrela = <A extends ApisBase>(
     },
 
     all: <F extends readonly FlowApi<A>[]>(flowApis: [...F]) => {
-      const ids = flowApis.map((v) => v.id);
-
       return createFlowApi(
-        createFlowRequest(`s:${ids.join("")}`, () =>
+        createFlowRequest(`p:${flowApis.map((v) => v.id).join("")}`, () =>
           createParallelPromise(flowApis, dispatch)
         ),
         dispatch
