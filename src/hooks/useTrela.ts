@@ -68,8 +68,10 @@ export const useTrela = <A extends ApisBase>(
     },
 
     all: <F extends readonly FlowApi<A>[]>(flowApis: [...F]) => {
+      const ids = flowApis.map((v) => v.id).sort((a, b) => a - b);
+
       return createFlowApi(
-        createFlowRequest(`p:${flowApis.map((v) => v.id).join("")}`, () =>
+        createFlowRequest(`p:${ids.join("")}`, () =>
           createParallelPromise(flowApis, dispatch)
         ),
         dispatch
