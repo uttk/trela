@@ -29,7 +29,11 @@ export const requestFlow = <R>(
   const { action, createPromise } = request;
 
   if (action === "read" && !flow.isFirst) return flow;
-  if (action === "cancel") return flow.cancel?.(), flow;
+  if (action === "cancel") {
+    if (flow.cancel) flow.cancel();
+
+    return flow;
+  }
 
   if (flow.promise) return flow;
 
