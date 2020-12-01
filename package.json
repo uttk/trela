@@ -1,6 +1,6 @@
 {
   "name": "trela",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Store management framework that simplifies asynchronous processing🍭",
   "main": "lib/index.js",
   "types": "types/index.d.ts",
@@ -32,7 +32,12 @@
   "scripts": {
     "coverage": "jest --color --no-cache --coverage",
     "test": "jest --color",
-    "build": "rollup --config"
+    "build": "rollup --config",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "format": "eslint 'src/**/*.{ts,tsx}' --fix",
+    "release-major": "standard-version --release-as major --no-verify",
+    "release-minor": "standard-version --release-as minor --no-verify",
+    "release-patch": "standard-version --release-as patch --no-verify"
   },
   "devDependencies": {
     "@testing-library/react": "^11.0.2",
@@ -41,22 +46,38 @@
     "@typescript-eslint/eslint-plugin": "^4.1.0",
     "@typescript-eslint/parser": "^4.1.0",
     "eslint": "^7.8.1",
-    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-prettier": "^6.15.0",
     "eslint-import-resolver-typescript": "^2.3.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jest": "^24.0.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.20.6",
+    "husky": "^4.3.0",
     "jest": "^26.4.2",
+    "lint-staged": "^10.5.2",
     "prettier": "^2.1.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "rollup": "^2.26.11",
     "rollup-plugin-typescript2": "^0.27.2",
+    "standard-version": "^9.0.0",
     "ts-jest": "^26.3.0",
     "typescript": "^4.0.2"
   },
   "peerDependencies": {
     "react": "^16.13.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn format && lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "yarn lint"
+  },
+  "config": {
+    "commitizen": {
+      "path": "git-cz"
+    }
   }
 }
