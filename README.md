@@ -68,12 +68,6 @@ const Root = () => (
 render(<Root />, document.getElementById("app"));
 ```
 
-# Supports
-
-You can ask us from the following URL. If you have any questions, please feel free😉
-
-- [Discord](https://discord.gg/4MfGQ4N)
-
 # API
 
 ## createTrelaContext
