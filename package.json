@@ -35,9 +35,9 @@
     "build": "rollup --config",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "format": "eslint 'src/**/*.{ts,tsx}' --fix",
-    "release-major": "standard-version -- --release-as major --no-verify",
-    "release-minor": "standard-version -- --release-as minor --no-verify",
-    "release-patch": "standard-version -- --release-as patch --no-verify"
+    "release-major": "standard-version --release-as major --no-verify",
+    "release-minor": "standard-version --release-as minor --no-verify",
+    "release-patch": "standard-version --release-as patch --no-verify"
   },
   "devDependencies": {
     "@testing-library/react": "^11.0.2",
